@@ -8,9 +8,14 @@ https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 """
 
 import os
+import sys
 
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rythm.settings")
 
 application = get_wsgi_application()
+sys.path.insert(1, '/var/www/html')
+sys.path.insert(1, '/var/www')
+sys.path.insert(1, '/home/ubuntu/rythm/rythm')
+sys.path.insert(1, '/home/ubuntu/rythm')
