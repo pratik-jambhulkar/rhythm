@@ -15,6 +15,7 @@ from django.core.wsgi import get_wsgi_application
 sys.path.insert(1, '/var/www/html')
 sys.path.insert(1, '/var/www')
 sys.path.insert(1, '/home/ubuntu/rythm/rythm')
+sys.path.insert(1, '/home/ubuntu/rythm/apiapp')
 sys.path.insert(1, '/home/ubuntu/rythm')
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "rythm.settings")
