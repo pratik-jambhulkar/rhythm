@@ -1,4 +1,4 @@
-from utils import *
+
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, authentication
 from apiapp.serializers import *
@@ -27,6 +27,11 @@ import requests
 import random
 from datetime import datetime
 from response_codes_messages import *
+import os
+import sys
+
+sys.path.insert(1, sys.path[0]+'/apiapp')
+from utils import *
 
 class LoginView(APIView):
     """
