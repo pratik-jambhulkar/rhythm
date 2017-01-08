@@ -10,6 +10,11 @@ https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 import os
 import sys
 
+sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__),
+	'/home/ubuntu/rythm/rythm/rythm/')))
+sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__),
+	'/home/ubuntu/rythm/rythm/apiapp/')))
+
 from django.core.wsgi import get_wsgi_application
 
 sys.path.insert(1, '/var/www/html')
