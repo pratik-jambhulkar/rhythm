@@ -63,7 +63,6 @@ class Users(Document):
 	gcm_token = fields.StringField(default=None, blank=True,unique=False)
 	push_notifications = fields.BooleanField(default=True, unique=False)
 	token = fields.StringField(default=None, blank=True)
-	is_logged_in = fields.BooleanField(default=False, unique=False)
 	phone_number = fields.StringField(min_length=10, max_length=10,blank=True, default=None, required=False)
 	notifications = fields.ListField(fields.EmbeddedDocumentField(Notifications), required=False, 
 		default= [], blank=True,unique=False)
@@ -77,3 +76,20 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 class LoginDetails(Document):
 	username = fields.StringField(max_length=16, required=True)
 	password = fields.StringField(max_length=32, required=True)
+
+class ForgotPassword(Document):
+	email_id = fields.EmailField(required=True)
+
+class Logout(Document):
+	user_id = fields.StringField(max_length=36, required=True)
+
+class UpdateGCMRequest(Document):
+	gcm_token = fields.StringField(required=True)
+	user_id = fields.StringField(required=True)
+
+class LoginWithFacebookRequest(Document):
+	access_token = fields.StringField(required=True)
+	user_id = fields.StringField(required=True)
+
+class LoginWithGoogleRequest(Document):
+	access_token = fields.StringField(required=True)
