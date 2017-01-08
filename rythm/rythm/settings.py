@@ -121,7 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 MONGODB_DATABASES = {
     "default": {
         "name": 'rhythm',
-        "host": '35.154.55.66:27017',
+        "host": 'localhost:27017',
         "password": 'Rhythm123',
         "username": 'rhythm',
         "tz_aware": True, # if you using timezones in django (USE_TZ = True)
