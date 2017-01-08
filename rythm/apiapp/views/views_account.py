@@ -26,12 +26,12 @@ from mongoengine import Q
 import requests
 import random
 from datetime import datetime
-from response_codes_messages import *
 import os
 import sys
 
 sys.path.insert(1, sys.path[0]+'/apiapp')
 from utils import *
+from response_codes_messages import *
 
 class LoginView(APIView):
     """
