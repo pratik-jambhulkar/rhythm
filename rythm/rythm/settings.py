@@ -25,7 +25,7 @@ SECRET_KEY = '3u12cy-*&8fg+@(6b2!@25_mftydl39(3+)#)7q-z#(_h_xzq^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['35.154.55.65',]
+ALLOWED_HOSTS = ['35.154.55.65','localhost']
 
 
 # Application definition
@@ -37,6 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'apiapp.apps.ApiappConfig',
+    'django_mongoengine',
+    'rest_framework_mongoengine',
+    'rest_framework.authtoken',
+    'rest_framework_docs',
+    'push_notifications',
 ]
 
 MIDDLEWARE = [
@@ -99,6 +106,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+MONGODB_DATABASES = {
+    "default": {
+        "name": 'rhythm',
+        "host": '35.154.55.66:27017',
+        "username": 'rhythm',
+        "password": 'Rhythm123',
+        "tz_aware": True, # if you using timezones in django (USE_TZ = True)
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
