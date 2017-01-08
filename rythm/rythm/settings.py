@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-
+from __future__ import absolute_import, unicode_literals
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -25,7 +25,7 @@ SECRET_KEY = '3u12cy-*&8fg+@(6b2!@25_mftydl39(3+)#)7q-z#(_h_xzq^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['35.154.55.65','localhost']
+ALLOWED_HOSTS = ['35.154.55.65','localhost', '127.0.0.1']
 
 
 # Application definition
@@ -76,6 +76,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rythm.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+        # 'rest_framework.permissions.AllowAny',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'rest_framework.authentication.TokenAuthentication',
+    'rest_framework.authentication.SessionAuthentication',
+    ),
+}
+
+
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
@@ -110,8 +122,8 @@ MONGODB_DATABASES = {
     "default": {
         "name": 'rhythm',
         "host": '35.154.55.66:27017',
-        "username": 'rhythm',
         "password": 'Rhythm123',
+        "username": 'rhythm',
         "tz_aware": True, # if you using timezones in django (USE_TZ = True)
     },
 }

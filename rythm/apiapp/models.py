@@ -59,7 +59,7 @@ class Users(Document):
 		default= [], blank=True,unique=False)
 	follower_user_list = fields.ListField(fields.EmbeddedDocumentField(FollowerList), required=False, 
 		default= [], blank=True,unique=False)
-	gender = fields.StringField(default=None,unique=False)
+	gender = fields.StringField(default=None,unique=False, blank=True, required=False)
 	gcm_token = fields.StringField(default=None, blank=True,unique=False)
 	push_notifications = fields.BooleanField(default=True, unique=False)
 	token = fields.StringField(default=None, blank=True)
@@ -68,3 +68,12 @@ class Users(Document):
 	notifications = fields.ListField(fields.EmbeddedDocumentField(Notifications), required=False, 
 		default= [], blank=True,unique=False)
 	is_unread_notification = fields.BooleanField(default=False)
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)	
+
+class LoginDetails(Document):
+	username = fields.StringField(max_length=16, required=True)
+	password = fields.StringField(max_length=32, required=True)
