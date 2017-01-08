@@ -55,8 +55,7 @@ class LoginView(APIView):
                     response['message'] = LOGIN_SUCCESS_MESSAGE + username + ' to rhythm!'
 
                     # Get the user's data if the user is valid and return the data
-                    Users.objects.get(username=username).update(is_logged_in=True,
-                        deactivate_account=False, device_logged_in_with=data['device_logged_in_with'])
+                    Users.objects.get(username=username).update(is_logged_in=True)
                     user_data = Users.objects.get(username=username)
 
                     # Add the authorization token value to the data
@@ -71,6 +70,7 @@ class LoginView(APIView):
                     response['data'] = None
                     return JSONResponse(response, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
+                print(e)
                 response['code'] = LOGIN_DATA_EXCEPTION_CODE
                 response['message'] = LOGIN_DATA_EXCEPTION_MESSAGE
                 response['data'] = None
