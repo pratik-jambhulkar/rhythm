@@ -74,6 +74,7 @@ class LoginView(APIView):
                     response['data'] = None
                     return JSONResponse(response, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
+                print(e)
                 response['code'] = LOGIN_DATA_EXCEPTION_CODE
                 response['message'] = LOGIN_DATA_EXCEPTION_MESSAGE
                 response['data'] = None
@@ -157,6 +158,8 @@ class LogoutView(APIView):
 
                 # Logout the user
                 logout(request)
+
+                user = Users.objects.get(user_id=data['user_id'])
 
                 # Change the state of the GCM device so that he won't receive any push notifications
                 user_model = User.objects.get(username=user.username)
@@ -386,7 +389,7 @@ class LoginWithFacebookView(APIView):
                 registration_object['profile_url'] = profile_url
 
                 registration_object['user_id'] = userid = str(uuid.uuid4())
-                number = '{:06d}'.format(random.randrange(1, 999999))
+                number = '{:03d}'.format(random.randrange(1, 999))
                 registration_object['username'] = username = (first_name + number)
                 new_password = User.objects.make_random_password()
 
@@ -499,7 +502,7 @@ class LoginWithGoogleView(APIView):
 
                 # Generate new userid, username and password for the new user
                 registration_object['user_id'] = userid = str(uuid.uuid4())
-                number = '{:06d}'.format(random.randrange(1, 999999))
+                number = '{:03d}'.format(random.randrange(1, 999))
                 # Generates a username with first_name and random 6 digit number
                 registration_object['username'] = username = (first_name + number)
                 new_password = User.objects.make_random_password()
