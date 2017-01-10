@@ -60,13 +60,17 @@ class Users(Document):
 	follower_user_list = fields.ListField(fields.EmbeddedDocumentField(FollowerList), required=False, 
 		default= [], blank=True,unique=False)
 	gender = fields.StringField(default=None,unique=False, blank=True, required=False)
-	gcm_token = fields.StringField(default=None, blank=True,unique=False)
 	push_notifications = fields.BooleanField(default=True, unique=False)
 	token = fields.StringField(default=None, blank=True)
 	phone_number = fields.StringField(min_length=10, max_length=10,blank=True, default=None, required=False)
 	notifications = fields.ListField(fields.EmbeddedDocumentField(Notifications), required=False, 
 		default= [], blank=True,unique=False)
 	is_unread_notification = fields.BooleanField(default=False)
+	user_bio = fields.StringField(default=None,unique=False, blank=True, required=False)
+	favorite_genre = fields.StringField(default=None,unique=False, blank=True, required=False)
+	favorite_artist = fields.StringField(default=None,unique=False, blank=True, required=False)
+	favorite_song = fields.StringField(default=None,unique=False, blank=True, required=False)
+	farorite_album = fields.StringField(default=None,unique=False, blank=True, required=False)
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
