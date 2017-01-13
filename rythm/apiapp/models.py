@@ -69,8 +69,9 @@ class Users(Document):
 	user_bio = fields.StringField(default=None,unique=False, blank=True, required=False)
 	favorite_genre = fields.StringField(default=None,unique=False, blank=True, required=False)
 	favorite_artist = fields.StringField(default=None,unique=False, blank=True, required=False)
-	favorite_song = fields.StringField(default=None,unique=False, blank=True, required=False)
+	favorite_instrument = fields.StringField(default=None,unique=False, blank=True, required=False)
 	farorite_album = fields.StringField(default=None,unique=False, blank=True, required=False)
+	date_of_birth = fields.StringField(default=None,blank=True, required=False)
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
@@ -97,3 +98,15 @@ class LoginWithFacebookRequest(Document):
 
 class LoginWithGoogleRequest(Document):
 	access_token = fields.StringField(required=True)
+
+class UpdateBasicInfo(Document):
+	user_id = fields.StringField(max_length=36,required=True,unique=False)
+	profile_url = fields.StringField(
+		default = "http://profile.ak.fbcdn.net/static-ak/rsrc.php/v2/yo/r/UlIqmHJn-SK.gif",unique=False, required=True
+	)
+	user_bio = fields.StringField(default=None,unique=False, blank=True, required=False)
+	favorite_genre = fields.StringField(default=None,unique=False, blank=True, required=False)
+	favorite_artist = fields.StringField(default=None,unique=False, blank=True, required=False)
+	favorite_instrument = fields.StringField(default=None,unique=False, blank=True, required=False)
+	farorite_album = fields.StringField(default=None,unique=False, blank=True, required=False)
+	date_of_birth = fields.StringField(default=None,blank=True, required=False)

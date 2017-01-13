@@ -87,3 +87,8 @@ class GoogleRegistrationSerializer(DocumentSerializer):
                 fields=('user_id','username', 'email_id')
             )
         ]
+
+class UserBasicInfoSerializer(DocumentSerializer):
+    class Meta:
+        model = UpdateBasicInfo
+        exclude = ('id',)

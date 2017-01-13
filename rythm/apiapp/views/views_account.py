@@ -226,7 +226,7 @@ class ForgotPasswordView(APIView):
             user.save()
 
             # Send the new password to the User via email
-            send_mail('Rhythm', 'Your new password is: ' + new_password, 'pratikj009@gmail.com', [email_id,], fail_silently=False)
+            send_mail('Rhythm', 'Your new password is: ' + new_password, 'sachinmutthe007@gmail.com', [email_id,], fail_silently=False)
             
             response['code'] = FORGOT_PASSWORD_EMAIL_SUCCESS_CODE
             response['message'] = FORGOT_PASSWORD_EMAIL_SUCCESS_MESSAGE
@@ -413,7 +413,7 @@ class LoginWithFacebookView(APIView):
                     response['data'] = serialized_data.data
 
                     # Send a mail to the user with his user credentials
-                    send_mail('Rhythm App Registration', 'Your default system generated username and password are: ' + username + " and " + new_password + " respectively.\nYou can change this after logging in to the app.", 'pratikj009@gmail.com', [email_id,], fail_silently=False)
+                    send_mail('Rhythm App Registration', 'Your default system generated username and password are: ' + username + " and " + new_password + " respectively.\nYou can change this after logging in to the app.", 'sachinmutthe007@gmail.com', [email_id,], fail_silently=False)
 
                     response['code'] = LOGIN_WITH_FB_NEW_USER_CODE
                     response['data'] = serialized_data.data
@@ -530,7 +530,7 @@ class LoginWithGoogleView(APIView):
                     response['data'] = serialized_data.data
 
                     # Send a mail to the user with his user credentials
-                    send_mail('Rhythm App Registration', 'Your default system generated username and password are: ' + username + " and " + new_password + " respectively.\nYou can change this after logging in to the app.", 'pratikj009@gmail.com', [email_id,], fail_silently=False)
+                    send_mail('Rhythm App Registration', 'Your default system generated username and password are: ' + username + " and " + new_password + " respectively.\nYou can change this after logging in to the app.", 'sachinmutthe007@gmail.com', [email_id,], fail_silently=False)
 
                     response['code'] = LOGIN_WITH_GOOGLE_NEW_USER_CODE
                     response['data'] = serialized_data.data
