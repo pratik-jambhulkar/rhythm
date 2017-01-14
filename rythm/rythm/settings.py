@@ -124,9 +124,17 @@ MONGODB_DATABASES = {
         "password": 'Rhythm123',
         "username": 'rhythm',
         "host": '35.154.55.65:27017',
+        # "host": '35.154.55.65:27017',
         "tz_aware": True, # if you using timezones in django (USE_TZ = True)
     },
 }
+
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'sachinmutthe007@gmail.com'
+EMAIL_HOST_PASSWORD = 'Sachin@123456'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
