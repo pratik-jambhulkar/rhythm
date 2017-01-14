@@ -26,11 +26,10 @@ class Notifications(EmbeddedDocument):
 	notification_details = fields.EmbeddedDocumentField(NotificationDetails, required=False, 
 		default= None, blank=True,unique=False)
 
-class NewFollowerRequests(EmbeddedDocument):
+class RequestedUsers(EmbeddedDocument):
 	user_id = fields.StringField(unique=False)
-	notification_id = fields.StringField(unique=False)
 
-class NewFollowingRequests(EmbeddedDocument):
+class PendingRequests(EmbeddedDocument):
 	user_id = fields.StringField(unique=False)
 	notification_id = fields.StringField(unique=False)
 
@@ -55,15 +54,15 @@ class Users(Document):
 	profile_url = fields.StringField(
 		default = "http://profile.ak.fbcdn.net/static-ak/rsrc.php/v2/yo/r/UlIqmHJn-SK.gif",unique=False
 	)
-	followed_users_list = fields.ListField(fields.EmbeddedDocumentField(FollowingList), required=False, 
+	followed_users_list = fields.EmbeddedDocumentListField(FollowingList, required=False, 
 		default= [], blank=True,unique=False)
-	follower_user_list = fields.ListField(fields.EmbeddedDocumentField(FollowerList), required=False, 
+	follower_users_list = fields.EmbeddedDocumentListField(FollowerList, required=False, 
 		default= [], blank=True,unique=False)
 	gender = fields.StringField(default=None,unique=False, blank=True, required=False)
 	push_notifications = fields.BooleanField(default=True, unique=False)
 	token = fields.StringField(default=None, blank=True)
-	phone_number = fields.StringField(min_length=10, max_length=10,blank=True, default=None, required=False)
-	notifications = fields.ListField(fields.EmbeddedDocumentField(Notifications), required=False, 
+	# phone_number = fields.StringField(min_length=10, max_length=10,blank=True, default=None, required=False)
+	notifications = fields.EmbeddedDocumentListField(Notifications, required=False, 
 		default= [], blank=True,unique=False)
 	is_unread_notification = fields.BooleanField(default=False)
 	user_bio = fields.StringField(default=None,unique=False, blank=True, required=False)
@@ -72,6 +71,11 @@ class Users(Document):
 	favorite_instrument = fields.StringField(default=None,unique=False, blank=True, required=False)
 	farorite_album = fields.StringField(default=None,unique=False, blank=True, required=False)
 	date_of_birth = fields.StringField(default=None,blank=True, required=False)
+	gender = fields.StringField(default=None,blank=True, required=False)
+	pending_requests = fields.EmbeddedDocumentListField(PendingRequests, required=False, 
+		default= [], blank=True,unique=False)
+	requested_users = fields.EmbeddedDocumentListField(RequestedUsers, required=False, 
+		default= [], blank=True,unique=False)
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
@@ -110,3 +114,4 @@ class UpdateBasicInfo(Document):
 	favorite_instrument = fields.StringField(default=None,unique=False, blank=True, required=False)
 	farorite_album = fields.StringField(default=None,unique=False, blank=True, required=False)
 	date_of_birth = fields.StringField(default=None,blank=True, required=False)
+	gender = fields.StringField(default=None,blank=True, required=False)

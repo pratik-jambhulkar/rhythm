@@ -17,4 +17,11 @@ urlpatterns = [
 	# Profile related APIs
 	url(r'^user-profile/get-profile-info/(?P<user_id>[A-Za-z0-9-]+)/$', views.GetUserProfileView.as_view()),
 	url(r'^user-profile/update-basic-info/$', views.UpdateUserProfileView.as_view()),
+
+	# Addiing User related APIs
+	url(r'^follow-user/send-request/$', views.FollowRequestView.as_view()),
+	url(r'^follow-user/accept-request/$', views.AcceptFollowerRequestView.as_view()),
+	url(r'^follow-user/remove-follower/$', views.RemoveFollowerView.as_view()),
+	url(r'^follow-user/unfollow-user/$', views.UnFollowUserView.as_view()),
+
     ]

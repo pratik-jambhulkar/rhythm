@@ -9,7 +9,7 @@ class UsersSerializer(DocumentSerializer):
     class Meta:
         model = Users
         depth = 1
-        exclude = ('id','notifications','followed_users_list','follower_user_list',)
+        exclude = ('id','notifications','followed_users_list','follower_users_list','pending_requests','requested_users',)
 
 class RegistrationSerializer(DocumentSerializer):
 
@@ -92,3 +92,7 @@ class UserBasicInfoSerializer(DocumentSerializer):
     class Meta:
         model = UpdateBasicInfo
         exclude = ('id',)
+
+class FollowRequestSerializer(serializers.Serializer):
+	source_user_id = serializers.CharField(max_length=36,required=True)
+	target_user_id = serializers.CharField(max_length=36,required=True)
