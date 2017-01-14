@@ -25,7 +25,7 @@ REGISTER_MISSING_FIELD_MESSAGE = 'Please enter missing fields'
 
 # 3. Logout
 LOGOUT_SUCCESS_CODE = 1020
-LOGOUT_SUCCESS_MESSAGE = 'Hope you made memories, do come back for more'
+LOGOUT_SUCCESS_MESSAGE = 'Logged out successfully, do come back for more'
 
 LOGOUT_INVALID_USERID_CODE = 1021
 LOGOUT_INVALID_USERID_SUCCESS = 'Oops! something went wrong'
