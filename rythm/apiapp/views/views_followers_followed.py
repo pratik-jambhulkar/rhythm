@@ -626,7 +626,7 @@ class GetFollowersView(generics.ListAPIView):
 					# Check whether the current user is in the requested list of the requester
 					for requested_user in user.requested_users:
 						# if match is found then add it to the list and set the flag
-						if user.user_id == requested_user.user_id:
+						if follower_user.user_id == requested_user.user_id:
 							user_details_dict['type'] = 102
 							followers_list.append(user_details_dict)
 							flag = True
@@ -640,14 +640,14 @@ class GetFollowersView(generics.ListAPIView):
 			# Sort the list according to the username in ascending manner
 			sorted_list = sorted(followers_list, key=lambda k: k['username'])
 
-			response['code'] = CONNECTION_GET_LIST_SUCCESS_CODE
-			response['message'] = CONNECTION_GET_LIST_SUCCESS_MESSAGE
+			response['code'] = GET_FOLLOWER_LIST_SUCCESS_CODE
+			response['message'] = GET_FOLLOWER_LIST_SUCCESS_MESSAGE
 			response['data'] = sorted_list
 			return Response(response, status= status.HTTP_200_OK)
 		except Exception as e:
 			print (e)
-			response['code'] = CONNECTION_GET_LIST_INVALID_USERID_CODE
-			response['message'] = CONNECTION_GET_LIST_INVALID_USERID_MESSAGE
+			response['code'] = GET_FOLLOWER_LIST_INVALID_USERID_CODE
+			response['message'] = GET_FOLLOWER_LIST_INVALID_USERID_MESSAGE
 			response['data'] = None
 			return Response(response, status= status.HTTP_400_BAD_REQUEST)
 
@@ -687,14 +687,14 @@ class GetFollowedUsersView(generics.ListAPIView):
 			# Sort the list according to the username in ascending manner
 			sorted_list = sorted(followed_users_list, key=lambda k: k['username'])
 			
-			response['code'] = CONNECTION_GET_LIST_SUCCESS_CODE
-			response['message'] = CONNECTION_GET_LIST_SUCCESS_MESSAGE
+			response['code'] = GET_FOLLOWED_LIST_SUCCESS_CODE
+			response['message'] = GET_FOLLOWED_LIST_SUCCESS_MESSAGE
 			response['data'] = sorted_list
 			return Response(response, status= status.HTTP_200_OK)
 		except Exception as e:
 			print (e)
-			response['code'] = CONNECTION_GET_LIST_INVALID_USERID_CODE
-			response['message'] = CONNECTION_GET_LIST_INVALID_USERID_MESSAGE
+			response['code'] = GET_FOLLOWED_LIST_INVALID_USERID_CODE
+			response['message'] = GET_FOLLOWED_LIST_INVALID_USERID_MESSAGE
 			response['data'] = None
 			return Response(response, status= status.HTTP_400_BAD_REQUEST)
 
