@@ -23,5 +23,11 @@ urlpatterns = [
 	url(r'^follow-user/accept-request/$', views.AcceptFollowerRequestView.as_view()),
 	url(r'^follow-user/remove-follower/$', views.RemoveFollowerView.as_view()),
 	url(r'^follow-user/unfollow-user/$', views.UnFollowUserView.as_view()),
+	url(r'^follow-user/search-user/(?P<user_id>[A-Za-z0-9-]+)/(?P<search_query>[A-Za-z0-9_]+)/$', views.SearchUserView.as_view()),
+	url(r'^follow-user/get-followers/(?P<user_id>[A-Za-z0-9-]+)/$', views.GetFollowersView.as_view()),
+	url(r'^follow-user/get-followed/(?P<user_id>[A-Za-z0-9-]+)/$', views.GetFollowedUsersView.as_view()),
+	url(r'^follow-user/get-other-followers/(?P<user_id>[A-Za-z0-9-]+)/(?P<other_user_id>[A-Za-z0-9_]+)/$', views.GetOtherUsersFollowersView.as_view()),
+	url(r'^follow-user/get-other-followed-users/(?P<user_id>[A-Za-z0-9-]+)/(?P<other_user_id>[A-Za-z0-9_]+)/$', 
+		views.GetOtherUsersFollowedUsersView.as_view()),
 
     ]

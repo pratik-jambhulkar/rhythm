@@ -1,7 +1,7 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from rest_framework import viewsets, authentication
-from apiapp.serializers import *
-from apiapp.models import Users
+from apiapp.serializers import FollowRequestSerializer
+from apiapp.models import *
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.renderers import JSONRenderer
@@ -9,11 +9,9 @@ from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework import permissions
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status, generics
 from mongoengine import Q
 import uuid
@@ -23,6 +21,7 @@ import os
 sys.path.insert(1, sys.path[0]+'/apiapp')
 
 from response_codes_messages import *
+from utils import *
 
 class FollowRequestView(APIView):
 	"""
@@ -500,45 +499,385 @@ class UnFollowUserView(APIView):
 			response['data'] = error_dict
 			return Response(response, status= status.HTTP_400_BAD_REQUEST)
 
-def is_requested(source_user_id, target_user_id):
-	"""
-		Function to check whether the target's user id is present in the requested list of the source
-		returns 1 if its there
-	"""
-	requested_result = Users.objects(user_id=source_user_id,
-					requested_users__user_id=target_user_id)
-	return len(requested_result)
 
-def is_followed(source_user_id, target_user_id):
+class SearchUserView(generics.ListAPIView):
 	"""
-		Function to check whether the target's user id is present in the source's followed list
-		returns 1 if its there
-	"""
-	requested_result = Users.objects(user_id=source_user_id,
-					followed_users_list__user_id=target_user_id)
-	return len(requested_result)
+    Get the users matching the search queary
+    """
 
-def is_follower(source_user_id, target_user_id):
-	"""
-		Function to check whether the target's user id is present in the source's followed list
-		returns 1 if its there
-	"""
-	follower_result = Users.objects(user_id=source_user_id,
-					follower_users_list__user_id=target_user_id)
-	return len(follower_result)
+	authentication_classes = (authentication.TokenAuthentication,)
+	permission_classes = (IsAuthenticated,)
+	parser_classes = (JSONParser,)
+	lookup_url_kwarg = "search_query"
 
-def is_pending(source_user_id, target_user_id):
-	"""
-		Function to check whether the target's user id is present in the pending list of the source
-		returns 1 if its there
-	"""
-	pending_result = Users.objects(user_id=source_user_id,
-					pending_requests__user_id=target_user_id)
-	return len(pending_result)
+	def get(self, request, user_id, search_query):
+		response = {}
+		
+		try:
+			users_list = []
 
-def remove_from_pending(source_user_id, target_user_id):
+			# Get the data of the requester
+			requesters_data = Users.objects(user_id=user_id).first()
+
+			# Get all the users matching the search query according to username, first name or last name
+			users = Users.objects( Q(username__icontains=search_query) | 
+				Q(first_name__icontains=search_query) | 
+				Q(last_name__icontains=search_query))
+			
+			# Iterate over all the users
+			for user in users:
+
+				if user.user_id != user_id:
+					user_details_dict = {}
+					user_details_dict = get_basic_user_info(user)
+					# A flag to maintain whether any condition is satisfied before the default condition
+					flag = False
+
+					if not flag:
+						# Check whether the current user is followed by the requester
+						for followed_user in requesters_data.followed_users_list:
+							# if match is found then add it to the list and set the flag
+							if user.user_id == followed_user.user_id:
+								user_details_dict['type'] = 101
+								users_list.append(user_details_dict)
+								flag = True
+								break
+
+					if not flag:
+						# Check whether the current user is in the requested list of the requester
+						for requested_user in requesters_data.requested_users:
+							# if match is found then add it to the list and set the flag
+							if user.user_id == requested_user.user_id:
+								user_details_dict['type'] = 102
+								users_list.append(user_details_dict)
+								flag = True
+								break
+
+					if not flag:
+						# Check whether the current user is in the pending list of the requester
+						for pending_request in requesters_data.pending_requests:
+							# if match is found then add it to the list and set the flag
+							if user.user_id == pending_request.user_id:
+								user_details_dict['type'] = 103
+								users_list.append(user_details_dict)
+								flag = True
+								break
+
+					# Check if all above conditions are not satisfied then add it to the list with normal type
+					if not flag:
+						user_details_dict['type'] = 100
+						users_list.append(user_details_dict)
+
+			response['code'] = SEARCH_USER_SUCCESS_CODE
+			response['message'] = SEARCH_USER_SUCCESS_MESSAGE
+			response['data'] = users_list
+			return Response(response, status= status.HTTP_200_OK)
+		except Exception as e:
+			print (e)
+			response['code'] = SEARCH_USER_DATA_EXCEPTION_CODE
+			response['message'] = SEARCH_USER_DATA_EXCEPTION_MESSAGE
+			response['data'] = None
+			return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+class GetFollowersView(generics.ListAPIView):
 	"""
-		Function to remove the receiver's user id from pending list of the requester
+    Get the follower list of a particular user
+    """
+
+	authentication_classes = (authentication.TokenAuthentication,)
+	permission_classes = (IsAuthenticated,)
+	parser_classes = (JSONParser,)
+	lookup_url_kwarg = "user_id"
+	def get(self, request, user_id):
+
+		response = {}
+
+		try:
+
+			# Get the user object whose followers are to be retrieved
+			user = Users.objects(user_id=user_id).only('follower_users_list','requested_users','followed_users_list').first()
+
+			followers_list = []
+
+			# Iterate over all the followers of the user
+			for follower in user.follower_users_list:
+				current_id = follower.user_id
+				user_details_dict = {}
+
+				# Get the object for the current follower
+				follower_user = Users.objects(user_id=current_id).only('user_id','profile_url','username',
+					'first_name','last_name').first()
+
+				user_details_dict = get_basic_user_info(follower_user)
+
+				# A flag to maintain whether any condition is satisfied before the default condition
+				flag = False
+
+				# Check whether the current user is followed by the requester
+				for followed_user in user.followed_users_list:
+					# if match is found then add it to the list and set the flag
+					if follower_user.user_id == followed_user.user_id:
+						user_details_dict['type'] = 101
+						followers_list.append(user_details_dict)
+						flag = True
+						break
+
+				if not flag:
+					# Check whether the current user is in the requested list of the requester
+					for requested_user in user.requested_users:
+						# if match is found then add it to the list and set the flag
+						if user.user_id == requested_user.user_id:
+							user_details_dict['type'] = 102
+							followers_list.append(user_details_dict)
+							flag = True
+							break
+
+				if not flag:
+					# Append the user to the follower list 
+					user_details_dict['type'] = 100
+					followers_list.append(user_details_dict)
+
+			# Sort the list according to the username in ascending manner
+			sorted_list = sorted(followers_list, key=lambda k: k['username'])
+
+			response['code'] = CONNECTION_GET_LIST_SUCCESS_CODE
+			response['message'] = CONNECTION_GET_LIST_SUCCESS_MESSAGE
+			response['data'] = sorted_list
+			return Response(response, status= status.HTTP_200_OK)
+		except Exception as e:
+			print (e)
+			response['code'] = CONNECTION_GET_LIST_INVALID_USERID_CODE
+			response['message'] = CONNECTION_GET_LIST_INVALID_USERID_MESSAGE
+			response['data'] = None
+			return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+class GetFollowedUsersView(generics.ListAPIView):
 	"""
-	Users.objects(user_id=source_user_id).update_one(pull__pending_requests__user_id = target_user_id)
-	Users.objects(user_id=target_user_id).update_one(pull__requested_users__user_id=source_user_id)
+    Get the followed user list of a particular user
+    """
+
+	authentication_classes = (authentication.TokenAuthentication,)
+	permission_classes = (IsAuthenticated,)
+	parser_classes = (JSONParser,)
+	lookup_url_kwarg = "user_id"
+	def get(self, request, user_id):
+
+		response = {}
+
+		try:
+
+			# Get the user object whose followed users are to be retrieved
+			user = Users.objects(user_id=user_id).only('followed_users_list').first()
+
+			followed_users_list = []
+
+			# Iterate over all the followed users of the user
+			for followed_user in user.followed_users_list:
+				current_id = followed_user.user_id
+				user_details_dict = {}
+
+				# Get the object or the current followed user
+				user = Users.objects(user_id=current_id).only('user_id','profile_url','username',
+					'first_name','last_name').first()
+				
+				# Append the user to the followed user list 
+				user_details_dict = get_basic_user_info(user)
+				followed_users_list.append(user_details_dict)
+
+			# Sort the list according to the username in ascending manner
+			sorted_list = sorted(followed_users_list, key=lambda k: k['username'])
+			
+			response['code'] = CONNECTION_GET_LIST_SUCCESS_CODE
+			response['message'] = CONNECTION_GET_LIST_SUCCESS_MESSAGE
+			response['data'] = sorted_list
+			return Response(response, status= status.HTTP_200_OK)
+		except Exception as e:
+			print (e)
+			response['code'] = CONNECTION_GET_LIST_INVALID_USERID_CODE
+			response['message'] = CONNECTION_GET_LIST_INVALID_USERID_MESSAGE
+			response['data'] = None
+			return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+
+class GetOtherUsersFollowersView(generics.ListAPIView):
+	"""
+    Get the follower list of a particular user
+    """
+
+	authentication_classes = (authentication.TokenAuthentication,)
+	permission_classes = (IsAuthenticated,)
+	parser_classes = (JSONParser,)
+	lookup_url_kwarg = "user_id"
+	def get(self, request, user_id, other_user_id):
+
+		response = {}
+
+		try:
+
+			# Get the user object whose followers are to be retrieved
+			other_user = Users.objects(user_id=other_user_id).only('follower_users_list').first()
+
+			# Get the requester' object from the database
+			user_object = Users.objects(user_id=user_id).only('followed_users','requested_users',
+				'pending_requests','profile_url','username','first_name','last_name','user_id').first()
+
+			followers_list = []
+
+			# Iterate over all the followers of the user
+			for follower in other_user.follower_users_list:
+				current_id = follower.user_id
+
+				follower_user = Users.objects(user_id=current_id).only('user_id','profile_url','username',
+					'first_name','last_name').first()
+				user_details_dict = {}
+				user_details_dict = get_basic_user_info(follower_user)
+
+				# A flag to maintain whether any condition is satisfied before the default condition
+				flag = False
+				# Check whether the current user is same to the requester
+				if follower_user.user_id == user_id:
+					# if match is found then add it to the list and set the flag
+					user_details_dict['type'] = 104
+					followers_list.append(user_details_dict)
+					flag = True
+
+				if not flag:
+					# Check whether the current user is connected to the requester
+					for connection in user_object.followed_users_list:
+						# if match is found then add it to the list and set the flag
+						if follower_user.user_id == connection.user_id:
+							user_details_dict['type'] = 101
+							followers_list.append(user_details_dict)
+							flag = True
+							break
+
+				if not flag:
+					# Check whether the current user is in the requested list of the requester
+					for requested_user in user_object.requested_users:
+						# if match is found then add it to the list and set the flag
+						if follower_user.user_id == requested_user.user_id:
+							user_details_dict['type'] = 102
+							followers_list.append(user_details_dict)
+							flag = True
+							break
+
+				if not flag:
+					# Check whether the current user is in the pending list of the requester
+					for pending_request in user_object.pending_requests:
+						# if match is found then add it to the list and set the flag
+						if follower_user.user_id == pending_request.user_id:
+							user_details_dict['type'] = 103
+							followers_list.append(user_details_dict)
+							flag = True
+							break
+
+				# Check if all above conditions are not satisfied then add it to the list with not 
+				# connected as type
+				if not flag:
+					user_details_dict['type'] = 100
+					followers_list.append(user_details_dict)
+
+			# Sort the list according to the username in ascending manner
+			sorted_list = sorted(followers_list, key=lambda k: k['username'])
+
+			response['code'] = GET_OTHER_FOLLOWER_LIST_SUCCESS_CODE
+			response['message'] = GET_OTHER_FOLLOWER_LIST_SUCCESS_MESSAGE
+			response['data'] = sorted_list
+			return Response(response, status= status.HTTP_200_OK)
+		except Exception as e:
+			print (e)
+			response['code'] = GET_OTHER_FOLLOWER_LIST_INVALID_USERID_CODE
+			response['message'] = GET_OTHER_FOLLOWER_LIST_INVALID_USERID_MESSAGE
+			response['data'] = None
+			return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+class GetOtherUsersFollowedUsersView(generics.ListAPIView):
+	"""
+    Get the followed user list of a particular user
+    """
+
+	authentication_classes = (authentication.TokenAuthentication,)
+	permission_classes = (IsAuthenticated,)
+	parser_classes = (JSONParser,)
+	lookup_url_kwarg = "user_id"
+	def get(self, request, user_id, other_user_id):
+
+		response = {}
+
+		try:
+
+			# Get the user object whose followers are to be retrieved
+			other_user = Users.objects(user_id=other_user_id).only('followed_users_list').first()
+
+			# Get the requester' object from the database
+			user_object = Users.objects(user_id=user_id).only('followed_users','requested_users',
+				'pending_requests','profile_url','username','first_name','last_name','user_id').first()
+
+			followed_users_list = []
+
+			# Iterate over all the followers of the user
+			for follower in other_user.follower_users_list:
+				current_id = follower.user_id
+
+				follower_user = Users.objects(user_id=current_id).only('user_id','profile_url','username',
+					'first_name','last_name').first()
+				user_details_dict = {}
+				user_details_dict = get_basic_user_info(follower_user)
+
+				# A flag to maintain whether any condition is satisfied before the default condition
+				flag = False
+				# Check whether the current user is same to the requester
+				if follower_user.user_id == user_id:
+					# if match is found then add it to the list and set the flag
+					user_details_dict['type'] = 104
+					followers_list.append(user_details_dict)
+					flag = True
+
+				if not flag:
+					# Check whether the current user is followed by the requester
+					for connection in user_object.followed_users_list:
+						# if match is found then add it to the list and set the flag
+						if follower_user.user_id == connection.user_id:
+							user_details_dict['type'] = 101
+							followed_users_list.append(user_details_dict)
+							flag = True
+							break
+
+				if not flag:
+					# Check whether the current user is in the requested list of the requester
+					for requested_user in user_object.requested_users:
+						# if match is found then add it to the list and set the flag
+						if follower_user.user_id == requested_user.user_id:
+							user_details_dict['type'] = 102
+							followed_users_list.append(user_details_dict)
+							flag = True
+							break
+
+				if not flag:
+					# Check whether the current user is in the pending list of the requester
+					for pending_request in user_object.pending_requests:
+						# if match is found then add it to the list and set the flag
+						if follower_user.user_id == pending_request.user_id:
+							user_details_dict['type'] = 103
+							followed_users_list.append(user_details_dict)
+							flag = True
+							break
+
+				# Check if all above conditions are not satisfied then add it to the list as other
+				if not flag:
+					user_details_dict['type'] = 100
+					followed_users_list.append(user_details_dict)
+
+			# Sort the list according to the username in ascending manner
+			sorted_list = sorted(followed_users_list, key=lambda k: k['username'])
+
+			response['code'] = GET_OTHER_FOLLOWED_LIST_SUCCESS_CODE
+			response['message'] = GET_OTHER_FOLLOWED_LIST_SUCCESS_MESSAGE
+			response['data'] = sorted_list
+			return Response(response, status= status.HTTP_200_OK)
+		except Exception as e:
+			print (e)
+			response['code'] = GET_OTHER_FOLLOWED_LIST_INVALID_USERID_CODE
+			response['message'] = GET_OTHER_FOLLOWED_LIST_INVALID_USERID_MESSAGE
+			response['data'] = None
+			return Response(response, status= status.HTTP_400_BAD_REQUEST)
