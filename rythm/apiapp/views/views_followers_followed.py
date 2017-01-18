@@ -810,7 +810,7 @@ class GetOtherUsersFollowedUsersView(generics.ListAPIView):
 			other_user = Users.objects(user_id=other_user_id).only('followed_users_list').first()
 
 			# Get the requester' object from the database
-			user_object = Users.objects(user_id=user_id).only('followed_users','requested_users',
+			user_object = Users.objects(user_id=user_id).only('followed_users_list','requested_users',
 				'pending_requests','profile_url','username','first_name','last_name','user_id').first()
 
 			followed_users_list = []
