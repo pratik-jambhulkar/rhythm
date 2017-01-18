@@ -718,7 +718,7 @@ class GetOtherUsersFollowersView(generics.ListAPIView):
 			other_user = Users.objects(user_id=other_user_id).only('follower_users_list').first()
 
 			# Get the requester' object from the database
-			user_object = Users.objects(user_id=user_id).only('followed_users','requested_users',
+			user_object = Users.objects(user_id=user_id).only('followed_users_list','requested_users',
 				'pending_requests','profile_url','username','first_name','last_name','user_id').first()
 
 			followers_list = []
@@ -816,7 +816,7 @@ class GetOtherUsersFollowedUsersView(generics.ListAPIView):
 			followed_users_list = []
 
 			# Iterate over all the followers of the user
-			for follower in other_user.follower_users_list:
+			for follower in other_user.followed_users_list:
 				current_id = follower.user_id
 
 				follower_user = Users.objects(user_id=current_id).only('user_id','profile_url','username',
@@ -830,7 +830,7 @@ class GetOtherUsersFollowedUsersView(generics.ListAPIView):
 				if follower_user.user_id == user_id:
 					# if match is found then add it to the list and set the flag
 					user_details_dict['type'] = 104
-					followers_list.append(user_details_dict)
+					followed_users_list.append(user_details_dict)
 					flag = True
 
 				if not flag:
