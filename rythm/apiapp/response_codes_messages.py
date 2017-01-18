@@ -170,7 +170,7 @@ FOLLOW_ACCEPT_REQUEST_NOT_PRESENT_MESSAGE = 'Invalid request! Request in not pre
 
 # 4. Reject follower Request
 FOLLOW_REJECT_REQUEST_SUCCESS_CODE = 2030
-FOLLOW_REJECT_REQUEST_SUCCESS_MESSAGE = 'FOLLOW request rejected successfully'
+FOLLOW_REJECT_REQUEST_SUCCESS_MESSAGE = 'Follow request rejected successfully'
 
 FOLLOW_REJECT_REQUEST_FOLLOW_ERROR_CODE = 2031
 FOLLOW_REJECT_REQUEST_FOLLOW_ERROR_MESSAGE = 'User is already present in follower list'
@@ -222,7 +222,7 @@ UNFOLLOW_MISSING_FIELDS_MESSAGE = 'Oops! something went wrong'
 # 7. Search User
 
 SEARCH_USER_SUCCESS_CODE = 2060
-SEARCH_USER_SUCCESS_MESSAGE = 'Follower removed successfully'
+SEARCH_USER_SUCCESS_MESSAGE = 'Users retrieved successfully'
 
 SEARCH_USER_DATA_EXCEPTION_CODE = 2061
 SEARCH_USER_DATA_EXCEPTION_MESSAGE = 'Oops! something went wrong'
@@ -236,7 +236,7 @@ GET_FOLLOWER_LIST_INVALID_USERID_MESSAGE = 'Oops! something went wrong'
 
 # 9. Get Followed users
 GET_FOLLOWED_LIST_SUCCESS_CODE = 2080
-GET_FOLLOWED_LIST_SUCCESS_MESSAGE = 'Follower list retrieved successfully'
+GET_FOLLOWED_LIST_SUCCESS_MESSAGE = 'Followed list retrieved successfully'
 
 GET_FOLLOWED_LIST_INVALID_USERID_CODE = 2081
 GET_FOLLOWED_LIST_INVALID_USERID_MESSAGE = 'Oops! something went wrong'
@@ -250,7 +250,7 @@ GET_OTHER_FOLLOWER_LIST_INVALID_USERID_MESSAGE = 'Oops! something went wrong'
 
 # 9. Get other user's Followed users
 GET_OTHER_FOLLOWED_LIST_SUCCESS_CODE = 2100
-GET_OTHER_FOLLOWED_LIST_SUCCESS_MESSAGE = 'Follower list retrieved successfully'
+GET_OTHER_FOLLOWED_LIST_SUCCESS_MESSAGE = 'Followed list retrieved successfully'
 
 GET_OTHER_FOLLOWED_LIST_INVALID_USERID_CODE = 2101
 GET_OTHER_FOLLOWED_LIST_INVALID_USERID_MESSAGE = 'Oops! something went wrong'
