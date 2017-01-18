@@ -215,7 +215,7 @@ class AcceptFollowerRequestView(APIView):
 
 								notification_object_receiver = Notifications(user_id = source_user_id, 
 								    notification_id = notification_id,
-								    notification_received_at = current_time, notification_type = 1, 
+								    notification_received_at = current_time, notification_type = 2, 
 								    notification_details = None)
 
 								notification_object_requester = Notifications(user_id = target_user_id, 

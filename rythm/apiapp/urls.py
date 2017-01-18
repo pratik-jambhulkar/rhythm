@@ -30,4 +30,9 @@ urlpatterns = [
 	url(r'^follow-user/get-other-followed-users/(?P<user_id>[A-Za-z0-9-]+)/(?P<other_user_id>[A-Za-z0-9_]+)/$', 
 		views.GetOtherUsersFollowedUsersView.as_view()),
 
+	# Notification Related APIs
+    url(r'^notifications/get-notifications/(?P<user_id>[A-Za-z0-9-]+)/$', views.GetNotificationsView.as_view()),
+    url(r'^notifications/update-read-notifications/(?P<user_id>[A-Za-z0-9-]+)/$', 
+        views.UpdateNotificationReadView.as_view()),
+
     ]
