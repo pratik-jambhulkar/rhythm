@@ -10,8 +10,8 @@ urlpatterns = [
 	url(r'^account/logout/$', views.LogoutView.as_view()),
 	url(r'^account/forgot-password/$', views.ForgotPasswordView.as_view()),
 	url(r'^account/username-availability/(?P<username>[A-Za-z0-9_]+)/$', views.GetUsernameAvailabilityPreLoginView.as_view()),
-	url(r'^account/facebook-login/$', views.LoginView.as_view()),
-	url(r'^account/google-login/$', views.LoginView.as_view()),
+	url(r'^account/facebook-login/$', views.LoginWithFacebookView.as_view()),
+	url(r'^account/google-login/$', views.LoginWithGoogleView.as_view()),
 	url(r'^account/update-gcm-token/$', views.UpdateGCMTokenView.as_view()),
 
 	# Profile related APIs
