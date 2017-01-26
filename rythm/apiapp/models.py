@@ -50,7 +50,7 @@ class Users(Document):
 	username = fields.StringField(unique=True, max_length=30)
 	email_id = fields.EmailField(unique=True, max_length=254)
 	first_name = fields.StringField(max_length=30, required=False, allow_null=True,unique=False)
-	last_name = fields.StringField(max_length=30, required=False, allow_null=True,unique=False)
+	last_name = fields.StringField(max_length=30, required=False, null=True,unique=False)
 	profile_url = fields.StringField(
 		default = "http://profile.ak.fbcdn.net/static-ak/rsrc.php/v2/yo/r/UlIqmHJn-SK.gif",unique=False
 	)
@@ -115,3 +115,36 @@ class UpdateBasicInfo(Document):
 	farorite_album = fields.StringField(default=None,unique=False, blank=True, required=False)
 	date_of_birth = fields.StringField(default=None,blank=True, required=False)
 	gender = fields.StringField(default=None,blank=True, required=False)
+
+class LikeDetails(EmbeddedDocument):
+	user_id = fields.StringField(unique=False)
+	notification_id = fields.StringField(unique=False)
+
+class CommentDetails(EmbeddedDocument):
+	comment_id = fields.StringField(unique=False)
+	notification_id = fields.StringField(unique=False)
+	user_id = fields.StringField(unique=False)
+	comment = fields.StringField(unique=False)
+
+class RhythmPosts(Document):
+	post_id = fields.StringField(max_length=36,required=True,unique=True)
+	user_id = fields.StringField(required=True, max_length=36)
+	poster_url = fields.StringField(
+		default = "http://profile.ak.fbcdn.net/static-ak/rsrc.php/v2/yo/r/UlIqmHJn-SK.gif",
+		unique=False, required=True
+	)
+	created_at = fields.DateTimeField(
+		default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+		, required=True, unique=False
+	)
+	post_likes = fields.EmbeddedDocumentListField(LikeDetails, required=False, 
+		default= [], blank=True,unique=False)
+	total_likes = fields.IntField(default=0)
+	post_comments = fields.EmbeddedDocumentListField(CommentDetails, required=False, 
+		default= [], blank=True,unique=False)
+	total_comments = fields.IntField(default=0)
+	is_comment_allowed = fields.BooleanField(default=True)
+	post_caption = fields.StringField(unique=False, required=False, null=True)
+	song_name = fields.StringField(unique=False, required=True)
+	album = fields.StringField(unique=False, required=False, null=True)
+	ratings = fields.IntField(min_value=0, max_value=5, default=0)

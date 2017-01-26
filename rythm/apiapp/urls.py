@@ -35,4 +35,8 @@ urlpatterns = [
     url(r'^notifications/update-read-notifications/(?P<user_id>[A-Za-z0-9-]+)/$', 
         views.UpdateNotificationReadView.as_view()),
 
+    # Post Related APIs
+    url(r'^posts/create-post/$', views.CreateANewPostView.as_view()),
+    url(r'^posts/like-post/$', views.LikePostView.as_view()),
+
     ]

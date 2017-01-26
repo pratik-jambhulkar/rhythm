@@ -96,3 +96,12 @@ class UserBasicInfoSerializer(DocumentSerializer):
 class FollowRequestSerializer(serializers.Serializer):
 	source_user_id = serializers.CharField(max_length=36,required=True)
 	target_user_id = serializers.CharField(max_length=36,required=True)
+
+class CreatePostSerializer(DocumentSerializer):
+    class Meta:
+        model = RhythmPosts
+        fields = ('user_id', 'poster_url', 'post_caption','song_name','album','ratings','is_comment_allowed')
+
+class LikeSerializer(serializers.Serializer):
+    user_id = serializers.CharField(max_length=36,required=True)
+    post_id = serializers.CharField(max_length=36,required=True)

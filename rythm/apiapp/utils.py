@@ -93,3 +93,37 @@ def remove_from_pending(source_user_id, target_user_id):
 	"""
 	Users.objects(user_id=source_user_id).update_one(pull__pending_requests__user_id = target_user_id)
 	Users.objects(user_id=target_user_id).update_one(pull__requested_users__user_id=source_user_id)
+
+
+def get_post_details(post_object):
+    """
+    Returns a dictionary with the post details from the post object
+    """
+    post_data = {}
+    post_data['poster_url'] = post_object['poster_url']
+    post_data['post_id'] = post_object['post_id']
+    post_data['user_id'] = post_object['user_id']
+    post_data['post_likes'] = post_object['post_likes']
+    post_data['created_at'] = post_object['created_at']
+    post_data['post_comments'] = post_object['post_comments']
+    post_data['total_likes'] = post_object['total_likes']
+    post_data['total_comments'] = post_object['total_comments']
+    post_data['is_comment_allowed'] = post_object['is_comment_allowed']
+    post_data['post_caption'] = post_object['post_caption']
+    post_data['song_name'] = post_object['song_name']
+    post_data['album'] = post_object['album']
+    post_data['ratings'] = post_object['ratings']
+    
+    return post_data
+
+def is_post_liked(user_id,post_object):
+    """
+    Returns true if the user has liked a post
+    """
+    has_liked_post = False
+    for like_object in post_object.post_likes:
+        if like_object.user_id == user_id:
+            has_liked_post = True
+            break
+
+    return has_liked_post
