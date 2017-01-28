@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from response_codes_messages import *
 import uuid
-from utils import get_post_details, is_post_liked, has_user_commented, get_notification_id
+from utils import get_post_details, is_post_liked, has_user_commented, get_notification_id, get_basic_user_info
 from datetime import datetime
 
 class CreateANewPostView(APIView):
@@ -467,3 +467,176 @@ class DeletePostView(APIView):
                 error_dict[key] = value[0]
             response['data'] = error_dict
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+class GetCommentsView(generics.ListAPIView):
+    """
+    Get the follower list of a particular user
+    """
+
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (JSONParser,)
+    lookup_url_kwarg = "post_id"
+    def get(self, request, post_id):
+
+        response = {}
+
+        try:
+
+            post_object = RhythmPosts.objects.get(post_id=post_id)
+
+            comment_list = []
+
+            if len(post_object.post_comments) > 0:
+                for comment in post_object.post_comments:
+                    comment_object = {}
+                    user_id = comment.user_id
+                    user_object = Users.objects.get(user_id=user_id)
+                    user_details = get_basic_user_info(user_object)
+                    comment_details = {}
+                    comment_details['comment_id'] = comment.comment_id
+                    comment_details['comment'] = comment.comment
+                    comment_details['created_at'] = comment.created_at
+
+                    comment_object['user_details'] = user_details
+                    comment_object['comment_details'] = comment_details
+
+                    comment_list.append(comment_object)
+
+            # Sort the list according to the created at in ascending manner
+            sorted_list = sorted(comment_list, key=lambda k: k['comment_details']['created_at'])
+
+            response['code'] = POST_GET_COMMENTS_SUCCESS_CODE
+            response['message'] = POST_GET_COMMENTS_SUCCESS_MESSAGE
+            response['data'] = sorted_list
+            return Response(response, status= status.HTTP_200_OK)
+        except Exception as e:
+            print (e)
+            response['code'] = POST_GET_COMMENTS_DATA_EXCEPTION_CODE
+            response['message'] = POST_GET_COMMENTS_DATA_EXCEPTION_MESSAGE
+            response['data'] = None
+            return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+class ToggleCommentOptionView(APIView):
+    """
+    Change push notification preferences of a user
+    """
+
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (JSONParser,)
+    lookup_url_kwarg = "post_id"
+    def post(self, request, post_id):
+        response = {}
+                
+        try:
+            # Change the push notification preference
+            post_object = RhythmPosts.objects.get(post_id=post_id)
+
+            post_object.update(is_comment_allowed = not post_object.is_comment_allowed)
+            
+            # Get the new updated notification preference
+            post_object = RhythmPosts.objects.get(post_id=post_id)
+
+            response['code'] = POST_TOGGLE_COMMENT_ALLOWED_SUCCESS_CODE
+            response['message'] = POST_TOGGLE_COMMENT_ALLOWED_SUCCESS_MESSAGE
+            response['data'] = { 'is_comment_allowed' : post_object.is_comment_allowed }
+
+            return Response(response, status= status.HTTP_200_OK)
+        except Exception as e:
+            print (e)
+            response['code'] = POST_TOGGLE_COMMENT_ALLOWED_DATA_EXCEPTION_CODE
+            response['message'] = POST_TOGGLE_COMMENT_ALLOWED_DATA_EXCEPTION_MESSAGE
+            response['data'] = None
+            return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+class GetPostDetailsView(APIView):
+    """
+    Get Post details
+    """
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (JSONParser,)
+    lookup_url_kwarg = "post_id"
+
+    def get(self, request, post_id):
+        response = {}
+
+        try:
+
+            # Get the post object for the particular post id
+            post_object = RhythmPosts.objects.get(post_id=post_id)
+            
+            post_details = get_post_details(post_object)
+
+            response['code'] = POST_GET_POST_DETAILS_SUCCESS_CODE
+            response['message'] = POST_GET_POST_DETAILS_SUCCESS_MESSAGE
+            response['data'] = post_details
+            return Response(response, status= status.HTTP_200_OK)
+
+        except Exception as e:
+
+            print (e)
+            response['code'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_CODE
+            response['message'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_MESSAGE
+            response['data'] = None
+            return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+class GetPostFeedView(APIView):
+    """
+    Get Post feed
+    """
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (JSONParser,)
+    lookup_url_kwarg = "user_id"
+
+    def get(self, request, user_id):
+        response = {}
+
+        try:
+
+            # Get user's followed users list
+            user_object = Users.objects.get(user_id=user_id)
+
+            followed_list = user_object.followed_users_list
+
+            user_list = []
+
+            # Add user in user list
+            user_list.append(user_id)
+            for user in followed_list:
+                user_list.append(user.user_id)
+
+            posts_list = []
+            # Get posts by the user
+            for user_id in user_list:
+                posts = RhythmPosts.objects(user_id=user_id)
+
+                user_object = Users.objects.get(user_id=user_id)
+
+                user_details = get_basic_user_info(user_object)
+
+                if len(posts) > 0:
+                    for post in posts:
+                        post_object = {}
+                        post_details = get_post_details(post)
+                        post_object['post_details'] = post_details
+                        post_object['user_details'] = user_details
+                        posts_list.append(post_object)
+
+            # Sort the list according to the created at in ascending manner
+            sorted_list = sorted(posts_list, key=lambda k: k['post_details']['created_at'], reverse=True)
+
+            response['code'] = POST_GET_POST_DETAILS_SUCCESS_CODE
+            response['message'] = POST_GET_POST_DETAILS_SUCCESS_MESSAGE
+            response['data'] = sorted_list
+            return Response(response, status= status.HTTP_200_OK)
+
+        except Exception as e:
+
+            print (e)
+            response['code'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_CODE
+            response['message'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_MESSAGE
+            response['data'] = None
+            return Response(response, status= status.HTTP_400_BAD_REQUEST)            
