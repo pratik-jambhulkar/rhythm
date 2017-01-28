@@ -1,6 +1,6 @@
 from rest_framework import viewsets, authentication
 from apiapp.serializers import *
-from apiapp.models import Users, RhythmPosts
+from apiapp.models import Users, RhythmPosts, CommentDetails
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.renderers import JSONRenderer
@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from response_codes_messages import *
 import uuid
-from utils import get_post_details, is_post_liked
+from utils import get_post_details, is_post_liked, has_user_commented, get_notification_id
 from datetime import datetime
 
 class CreateANewPostView(APIView):
@@ -239,6 +239,159 @@ class LikePostView(APIView):
             error_dict = {}
             response['code'] = POST_UNLIKE_MISSING_FIELDS_CODE
             response['message'] = POST_UNLIKE_MISSING_FIELDS_MESSAGE
+            for key, value in unlike_serializer.errors.items():
+                error_dict[key] = value[0]
+            response['data'] = error_dict
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentPostView(APIView):
+    """
+    Add/Delete comment a post depending the method type
+    """
+
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (JSONParser,)
+    serializer_class = CommentSerializer
+
+    def post(self, request):
+        response = {}
+        data = JSONParser().parse(request)
+        comment_serializer = CommentSerializer(data=data)
+
+        if comment_serializer.is_valid():
+
+            user_id = comment_serializer.validated_data['user_id']
+            post_id = comment_serializer.validated_data['post_id']
+            comment = comment_serializer.validated_data['comment']
+
+            try:
+
+                # Get the post object for the particular post id
+                post_object = RhythmPosts.objects.get(post_id=post_id)
+
+                if post_object.is_comment_allowed:
+
+                    post_owner_id = post_object.user_id
+
+                    # Create a notification object for the post
+                    notification_id = str(uuid.uuid4())
+                    comment_id = str(uuid.uuid4())
+
+                    comment_details = CommentDetails(comment_id=comment_id,
+                        notification_id=notification_id,
+                        comment=comment,
+                        user_id=user_id)
+
+                    notification_details = NotificationDetails(_id=comment_id, 
+                        image_url=post_object.poster_url,
+                        title=comment)
+                    notification_object = Notifications(user_id = user_id, notification_id = notification_id,
+                        notification_type = 4, 
+                        notification_details = notification_details)
+
+                    # Push the notification object created for this user
+                    Users.objects(user_id=post_owner_id).update_one(
+                        push__notifications=notification_object,
+                        set__is_unread_notification=True)
+
+                    # Insert the like object in the post details and increment the total like for that post
+                    RhythmPosts.objects(post_id=post_id).update_one(
+                        push__post_comments=comment_details,
+                        inc__total_comments=1)
+
+                    # Get the updated likes count to send back to the user
+                    updated_post = RhythmPosts.objects(post_id=post_id).only('total_comments').first()
+
+                    response_data = {}
+                    response_data['total_comments'] = updated_post.total_comments
+
+                    response['code'] = POST_ADD_COMMENT_SUCCESS_CODE
+                    response['message'] = POST_ADD_COMMENT_SUCCESS_MESSAGE
+                    response['data'] = response_data
+                    return Response(response, status= status.HTTP_200_OK)
+
+                else:
+                    # Comment not allowed
+                    response['code'] = POST_ADD_COMMENT_NOT_ALLOWED_ERROR_CODE
+                    response['message'] = POST_ADD_COMMENT_NOT_ALLOWED_ERROR_MESSAGE
+                    response['data'] = None
+                    return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+            except Exception as e:
+
+                print (e)
+                response['code'] = POST_ADD_COMMENT_DATA_EXCEPTION_CODE
+                response['message'] = POST_ADD_COMMENT_DATA_EXCEPTION_MESSAGE
+                response['data'] = None
+                return Response(response, status= status.HTTP_400_BAD_REQUEST)
+        else:
+            error_dict = {}
+            response['code'] = POST_ADD_COMMENT_MISSING_FIELDS_CODE
+            response['message'] = POST_ADD_COMMENT_MISSING_FIELDS_MESSAGE
+            for key, value in comment_serializer.errors.items():
+                error_dict[key] = value[0]
+            response['data'] = error_dict
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        response = {}
+        data = JSONParser().parse(request)
+        comment_serializer = CommentSerializer(data=data)
+
+        if comment_serializer.is_valid():
+
+            user_id = comment_serializer.validated_data['user_id']
+            post_id = comment_serializer.validated_data['post_id']
+            comment_id = comment_serializer.validated_data['comment']
+
+            try:
+                # Get the post object for the particular post id
+                post_object = RhythmPosts.objects.get(post_id=post_id)
+
+                post_owner_id = post_object.user_id
+
+                is_user_comment = has_user_commented(user_id, comment_id,post_object.post_comments)
+
+                if user_id == post_owner_id or is_user_comment:
+                    # Delete Post
+                    notification_id = get_notification_id(comment_id, post_object.post_comments)
+
+                    post_object.update(pull__post_comments__comment_id=comment_id,
+                        dec__total_comments=1)
+
+                    Users.objects.get(user_id=post_owner_id).update(pull__notifications__notification_id=notification_id)
+                    
+                    # Get the updated likes count to send back to the user
+                    updated_post = RhythmPosts.objects(post_id=post_id).only('total_comments').first()
+
+                    response_data = {}
+                    response_data['total_comments'] = updated_post.total_comments
+
+                    response['code'] = POST_DELETE_COMMENT_SUCCESS_CODE
+                    response['message'] = POST_DELETE_COMMENT_SUCCESS_MESSAGE
+                    response['data'] = response_data
+                    return Response(response, status= status.HTTP_200_OK)
+                else:
+
+                    response['code'] = POST_DELETE_COMMENT_NOT_AUTHORISED_CODE
+                    response['message'] = POST_DELETE_COMMENT_NOT_AUTHORISED_MESSAGE
+                    response['data'] = None
+                    return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+            except Exception as e:
+
+                print (e)
+                response['code'] = POST_DELETE_COMMENT_DATA_EXCEPTION_CODE
+                response['message'] = POST_DELETE_COMMENT_DATA_EXCEPTION_MESSAGE
+                response['data'] = None
+                return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+        else:
+            error_dict = {}
+            response['code'] = POST_DELETE_COMMENT_MISSING_FIELDS_CODE
+            response['message'] = POST_DELETE_COMMENT_MISSING_FIELDS_MESSAGE
             for key, value in unlike_serializer.errors.items():
                 error_dict[key] = value[0]
             response['data'] = error_dict

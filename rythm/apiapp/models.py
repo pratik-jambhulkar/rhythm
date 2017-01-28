@@ -125,6 +125,10 @@ class CommentDetails(EmbeddedDocument):
 	notification_id = fields.StringField(unique=False)
 	user_id = fields.StringField(unique=False)
 	comment = fields.StringField(unique=False)
+	created_at = fields.DateTimeField(
+		default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+		, required=True, unique=False
+	)
 
 class RhythmPosts(Document):
 	post_id = fields.StringField(max_length=36,required=True,unique=True)

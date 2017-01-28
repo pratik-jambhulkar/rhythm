@@ -105,3 +105,8 @@ class CreatePostSerializer(DocumentSerializer):
 class LikeSerializer(serializers.Serializer):
     user_id = serializers.CharField(max_length=36,required=True)
     post_id = serializers.CharField(max_length=36,required=True)
+
+class CommentSerializer(serializers.Serializer):
+    user_id = serializers.CharField(max_length=36,required=True)
+    post_id = serializers.CharField(max_length=36,required=True)
+    comment = serializers.CharField(required=True)      

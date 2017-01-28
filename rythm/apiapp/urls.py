@@ -38,5 +38,6 @@ urlpatterns = [
     # Post Related APIs
     url(r'^posts/create-post/$', views.CreateANewPostView.as_view()),
     url(r'^posts/like-post/$', views.LikePostView.as_view()),
+    url(r'^posts/comment-post/$', views.CommentPostView.as_view()),
 
     ]

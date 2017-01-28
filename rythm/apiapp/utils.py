@@ -127,3 +127,24 @@ def is_post_liked(user_id,post_object):
             break
 
     return has_liked_post
+
+def has_user_commented(user_id, comment_id,post_comments):
+
+	is_comment = False
+	notification_id = None
+	for comment in post_comments:
+		if comment.user_id == user_id and comment.comment_id == comment_id:
+			is_comment = True
+			notification_id = comment.notification_id
+			break
+
+	return notification_id, is_comment
+
+def get_notification_id(comment_id,post_comments):
+	notification_id = None
+	for comment in post_comments:
+		if comment.comment_id == comment_id:
+			notification_id = comment.notification_id
+			break
+
+	return notification_id
