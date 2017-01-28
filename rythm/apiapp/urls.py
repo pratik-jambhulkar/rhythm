@@ -39,5 +39,6 @@ urlpatterns = [
     url(r'^posts/create-post/$', views.CreateANewPostView.as_view()),
     url(r'^posts/like-post/$', views.LikePostView.as_view()),
     url(r'^posts/comment-post/$', views.CommentPostView.as_view()),
+    url(r'^posts/delete-post/$', views.DeletePostView.as_view()),
 
     ]

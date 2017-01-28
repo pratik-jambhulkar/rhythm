@@ -396,3 +396,71 @@ class CommentPostView(APIView):
                 error_dict[key] = value[0]
             response['data'] = error_dict
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeletePostView(APIView):
+    """
+    Deletes a post and related data
+    """
+
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (JSONParser,)
+    serializer_class = LikeSerializer
+
+    def delete(self, request):
+        response = {}
+        data = JSONParser().parse(request)
+        delete_serializer = LikeSerializer(data=data)
+
+        if delete_serializer.is_valid():
+
+            user_id = delete_serializer.validated_data['user_id']
+            post_id = delete_serializer.validated_data['post_id']
+
+            try:
+
+                # Get the post object for the particular post id
+                post_object = RhythmPosts.objects.get(post_id=post_id)
+
+                post_owner_id = post_object.user_id
+
+                if post_owner_id == user_id:
+
+                    # Delete the likes notifications from the Users database
+                    user_document = Users.objects.get(user_id=user_id)
+                    for like in post_object.post_likes:
+                        user_document.update(pull__notifications__notification_id=like.notification_id)
+
+                    for comment in post_object.post_comments:
+                        user_document.update(pull__notifications__notification_id=like.notification_id)
+
+                    post_object.delete()
+
+                    response['code'] = POST_DELETE_SUCCESS_CODE
+                    response['message'] = POST_DELETE_SUCCESS_MESSAGE
+                    response['data'] = None
+                    return Response(response, status= status.HTTP_200_OK)
+
+                else:
+
+                    response['code'] = POST_DELETE_NOT_AUTHORISED_CODE
+                    response['message'] = POST_DELETE_NOT_AUTHORISED_MESSAGE
+                    response['data'] = None
+                    return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+            except Exception as e:
+
+                print (e)
+                response['code'] = POST_DELETE_DATA_EXCEPTION_CODE
+                response['message'] = POST_DELETE_DATA_EXCEPTION_MESSAGE
+                response['data'] = None
+                return Response(response, status= status.HTTP_400_BAD_REQUEST)
+        else:
+            error_dict = {}
+            response['code'] = POST_DELETE_MISSING_FIELDS_CODE
+            response['message'] = POST_DELETE_MISSING_FIELDS_MESSAGE
+            for key, value in delete_serializer.errors.items():
+                error_dict[key] = value[0]
+            response['data'] = error_dict
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
