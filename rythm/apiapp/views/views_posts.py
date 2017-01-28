@@ -429,11 +429,14 @@ class DeletePostView(APIView):
 
                     # Delete the likes notifications from the Users database
                     user_document = Users.objects.get(user_id=user_id)
-                    for like in post_object.post_likes:
-                        user_document.update(pull__notifications__notification_id=like.notification_id)
 
-                    for comment in post_object.post_comments:
-                        user_document.update(pull__notifications__notification_id=like.notification_id)
+                    if post_object.post_likes is not None:
+                        for like in post_object.post_likes:
+                            user_document.update(pull__notifications__notification_id=like.notification_id)
+
+                    if post_object.post_comments is not None:
+                        for comment in post_object.post_comments:
+                            user_document.update(pull__notifications__notification_id=like.notification_id)
 
                     post_object.delete()
 
