@@ -109,4 +109,12 @@ class LikeSerializer(serializers.Serializer):
 class CommentSerializer(serializers.Serializer):
     user_id = serializers.CharField(max_length=36,required=True)
     post_id = serializers.CharField(max_length=36,required=True)
-    comment = serializers.CharField(required=True)      
+    comment = serializers.CharField(required=True)
+
+class ReportPostSerializer(serializers.Serializer):
+    user_id = serializers.CharField(max_length=36,required=True)
+    post_id = serializers.CharField(max_length=36,required=True)
+    report_type = serializers.IntegerField(required=True)
+
+class DeleteUserSerializer(serializers.Serializer):
+    user_id = serializers.CharField(max_length=36,required=True)    

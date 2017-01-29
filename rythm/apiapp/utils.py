@@ -148,3 +148,12 @@ def get_notification_id(comment_id,post_comments):
 			break
 
 	return notification_id
+
+def get_report_details(report):
+	report_detail = {}
+
+	report_detail['created_at'] = report.created_at
+	report_detail['report_type'] = report.report_type
+	report_detail['report_id'] = report.report_id
+
+	return report_detail

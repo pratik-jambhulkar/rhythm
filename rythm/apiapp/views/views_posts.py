@@ -1,6 +1,6 @@
 from rest_framework import viewsets, authentication
 from apiapp.serializers import *
-from apiapp.models import Users, RhythmPosts, CommentDetails
+from apiapp.models import Users, RhythmPosts, CommentDetails, ReportPosts
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.renderers import JSONRenderer
@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from response_codes_messages import *
 import uuid
-from utils import get_post_details, is_post_liked, has_user_commented, get_notification_id, get_basic_user_info
+from utils import *
 from datetime import datetime
 
 class CreateANewPostView(APIView):
@@ -639,4 +639,115 @@ class GetPostFeedView(APIView):
             response['code'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_CODE
             response['message'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_MESSAGE
             response['data'] = None
-            return Response(response, status= status.HTTP_400_BAD_REQUEST)            
+            return Response(response, status= status.HTTP_400_BAD_REQUEST)
+
+
+class ReportPostView(APIView):
+    """
+    Report a post and related data
+    """
+
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (JSONParser,)
+    serializer_class = ReportPostSerializer
+
+    def post(self, request):
+        response = {}
+        data = JSONParser().parse(request)
+        report_serializer = ReportPostSerializer(data=data)
+
+        if report_serializer.is_valid():
+
+            user_id = report_serializer.validated_data['user_id']
+            post_id = report_serializer.validated_data['post_id']
+            report_type = report_serializer.validated_data['report_type']
+
+            try:
+
+                report_id = str(uuid.uuid4())
+                report_object = ReportPosts(report_id=report_id,
+                    post_id=post_id,
+                    user_id=user_id,
+                    report_type=report_type)
+
+                report_object.save()
+
+                response['code'] = POST_REPORT_SUCCESS_CODE
+                response['message'] = POST_REPORT_SUCCESS_MESSAGE
+                response['data'] = None
+                return Response(response, status= status.HTTP_200_OK)
+
+            except Exception as e:
+
+                print (e)
+                response['code'] = POST_REPORT_DATA_EXCEPTION_CODE
+                response['message'] = POST_REPORT_DATA_EXCEPTION_MESSAGE
+                response['data'] = None
+                return Response(response, status= status.HTTP_400_BAD_REQUEST)
+        else:
+            error_dict = {}
+            response['code'] = POST_REPORT_MISSING_FIELDS_CODE
+            response['message'] = POST_REPORT_MISSING_FIELDS_MESSAGE
+            for key, value in report_serializer.errors.items():
+                error_dict[key] = value[0]
+            response['data'] = error_dict
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+class GetReportsView(APIView):
+    """
+    Get Post feed
+    """
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (JSONParser,)
+
+    def get(self, request):
+        response = {}
+
+        try:
+
+            reports = ReportPosts.objects.all()
+
+            reports_lists = []
+
+            for report in reports:
+
+                report_object = {}
+                post_id = report.post_id
+
+                post_object = RhythmPosts.objects.get(post_id=post_id)
+                post_details = get_post_details(post_object)
+
+                post_owner_id = post_object.user_id
+                owner_object = Users.objects.get(user_id=post_owner_id)
+                owner_details = get_basic_user_info(owner_object)
+
+                reporter_id = report.user_id
+                reporter_object = Users.objects.get(user_id=reporter_id)
+                reporter_details = get_basic_user_info(reporter_object)
+
+                report_details = get_report_details(report)
+
+                report_object['post_details'] = post_details
+                report_object['owner_details'] = owner_details
+                report_object['reporter_details'] = reporter_details
+                report_object['report_details'] = report_details
+
+                reports_lists.append(report_object)
+
+            # Sort the list according to the created at in ascending manner
+            sorted_list = sorted(reports_lists, key=lambda k: k['report_details']['created_at'])
+
+            response['code'] = POST_GET_POST_DETAILS_SUCCESS_CODE
+            response['message'] = POST_GET_POST_DETAILS_SUCCESS_MESSAGE
+            response['data'] = sorted_list
+            return Response(response, status= status.HTTP_200_OK)
+
+        except Exception as e:
+
+            print (e)
+            response['code'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_CODE
+            response['message'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_MESSAGE
+            response['data'] = None
+            return Response(response, status= status.HTTP_400_BAD_REQUEST)

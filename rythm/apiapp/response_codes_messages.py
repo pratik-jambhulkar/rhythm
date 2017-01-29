@@ -92,6 +92,16 @@ LOGIN_WITH_GOOGLE_DATA_EXCEPTION_MESSAGE = 'Oops! something went wrong'
 LOGIN_WITH_GOOGLE_MISSING_FIELDS_CODE = 1073
 LOGIN_WITH_GOOGLE_MISSING_FIELDS_MESSAGE = 'Oops! something went wrong'
 
+# 9. Delete User
+DELETE_USER_SUCCESS_CODE = 1080
+DELETE_USER_SUCCESS_MESSAGE = 'User deleted successfully!'
+
+DELETE_USER_DATA_EXCEPTION_CODE = 1081
+DELETE_USER_DATA_EXCEPTION_MESSAGE = 'Oops! something went wrong'
+
+DELETE_USER_MISSING_FIELDS_CODE = 1082
+DELETE_USER_MISSING_FIELDS_MESSAGE = 'Oops! something went wrong'
+
 #----------------- Profile -----------------------------------
 # Profile start
 # 1. Get Profile Details
@@ -382,3 +392,13 @@ POST_GET_POST_FEED_SUCCESS_MESSAGE = 'Post Feed retrieved successfully!'
 
 POST_GET_POST_FEED_DATA_EXCEPTION_CODE = 5091
 POST_GET_POST_FEED_DATA_EXCEPTION_MESSAGE = 'Oops! something went wrong'
+
+# 11. Report Post
+POST_REPORT_SUCCESS_CODE = 5100
+POST_REPORT_SUCCESS_MESSAGE = 'Post reported successfully'
+
+POST_REPORT_MISSING_FIELDS_CODE = 5101
+POST_REPORT_MISSING_FIELDS_MESSAGE = 'Oops! something went wrong'
+
+POST_REPORT_DATA_EXCEPTION_CODE = 5102
+POST_REPORT_DATA_EXCEPTION_MESSAGE = 'Oops! something went wrong'

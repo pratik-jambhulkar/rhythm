@@ -151,4 +151,15 @@ class RhythmPosts(Document):
 	post_caption = fields.StringField(unique=False, required=False, null=True)
 	song_name = fields.StringField(unique=False, required=True)
 	album = fields.StringField(unique=False, required=False, null=True)
-	ratings = fields.IntField(min_value=0, max_value=5, default=0)
+	ratings = fields.DecimalField(min_value=0, max_value=5, default=0)
+
+
+class ReportPosts(Document):
+	post_id = fields.StringField(max_length=36,required=True)
+	user_id = fields.StringField(required=True, max_length=36)
+	report_id = fields.StringField(max_length=36,required=True)
+	report_type = fields.IntField(default=0)
+	created_at = fields.DateTimeField(
+		default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+		, required=True, unique=False
+	)

@@ -550,3 +550,69 @@ class LoginWithGoogleView(APIView):
                 error_dict[key] = value[0]
             response['data'] = error_dict
             return JSONResponse(response, status=status.HTTP_400_BAD_REQUEST)
+
+class ReportPostView(APIView):
+    """
+    Report a post and related data
+    """
+
+    authentication_classes = (authentication.TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    parser_classes = (JSONParser,)
+    serializer_class = DeleteUserSerializer
+
+    def post(self, request):
+        response = {}
+        data = JSONParser().parse(request)
+        delete_serializer = DeleteUserSerializer(data=data)
+
+        if delete_serializer.is_valid():
+
+            user_id = delete_serializer.validated_data['user_id']
+
+            try:
+
+                user = Users.objects.get(user_id=user_id)
+
+                # remove from followers
+                if len(user.followed_users_list) > 0:
+                    for followed_user in user.followed_users_list:
+
+                        Users.objects(user_id=followed_user.user_id).update_one(
+                            pull__follower_users_list__user_id=user_id,
+                            pull__notifications__notification_id=followed_user.notification_id)
+
+                # remove from following
+                if len(user.follower_users_list) > 0:
+                    for follower in user.follower_users_list:
+                                    
+                        Users.objects(user_id=follower.user_id).update_one(
+                            pull__followed_users_list__user_id=user_id,
+                            pull__notifications__notification_id=follower.notification_id)
+
+                # remove posts
+                RhythmPosts.objects(user_id=user_id).delete()
+
+                # delete user
+                user.delete()
+
+                response['code'] = DELETE_USER_SUCCESS_CODE
+                response['data'] = None
+                response['message']= DELETE_USER_SUCCESS_MESSAGE
+                return JSONResponse(response, status=status.HTTP_201_CREATED)
+
+            except Exception as e:
+
+                print (e)
+                response['code'] = DELETE_USER_DATA_EXCEPTION_CODE
+                response['message'] = DELETE_USER_DATA_EXCEPTION_MESSAGE
+                response['data'] = None
+                return Response(response, status= status.HTTP_400_BAD_REQUEST)
+        else:
+            error_dict = {}
+            response['code'] = DELETE_USER_MISSING_FIELDS_CODE
+            response['message'] = DELETE_USER_MISSING_FIELDS_MESSAGE
+            for key, value in delete_serializer.errors.items():
+                error_dict[key] = value[0]
+            response['data'] = error_dict
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)            

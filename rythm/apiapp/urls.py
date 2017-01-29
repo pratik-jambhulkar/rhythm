@@ -13,6 +13,7 @@ urlpatterns = [
 	url(r'^account/facebook-login/$', views.LoginWithFacebookView.as_view()),
 	url(r'^account/google-login/$', views.LoginWithGoogleView.as_view()),
 	url(r'^account/update-gcm-token/$', views.UpdateGCMTokenView.as_view()),
+	url(r'^account/delete-user/$', views.ReportPostView.as_view()),
 
 	# Profile related APIs
 	url(r'^user-profile/get-profile-info/(?P<user_id>[A-Za-z0-9-]+)/$', views.GetUserProfileView.as_view()),
@@ -44,5 +45,7 @@ urlpatterns = [
     url(r'^posts/toggle-comments/(?P<post_id>[A-Za-z0-9-]+)/$', views.ToggleCommentOptionView.as_view()),
     url(r'^posts/get-post-details/(?P<post_id>[A-Za-z0-9-]+)/$', views.GetPostDetailsView.as_view()),
     url(r'^posts/get-post-feed/(?P<user_id>[A-Za-z0-9-]+)/$', views.GetPostFeedView.as_view()),
+    url(r'^posts/report-post/$', views.ReportPostView.as_view()),
+    url(r'^posts/get-reports/$', views.GetReportsView.as_view()),
 
     ]
