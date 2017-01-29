@@ -13,7 +13,7 @@ urlpatterns = [
 	url(r'^account/facebook-login/$', views.LoginWithFacebookView.as_view()),
 	url(r'^account/google-login/$', views.LoginWithGoogleView.as_view()),
 	url(r'^account/update-gcm-token/$', views.UpdateGCMTokenView.as_view()),
-	url(r'^account/delete-user/$', views.ReportPostView.as_view()),
+	url(r'^account/delete-user/$', views.DeleteUserView.as_view()),
 
 	# Profile related APIs
 	url(r'^user-profile/get-profile-info/(?P<user_id>[A-Za-z0-9-]+)/$', views.GetUserProfileView.as_view()),

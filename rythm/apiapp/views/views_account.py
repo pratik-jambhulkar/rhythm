@@ -551,7 +551,7 @@ class LoginWithGoogleView(APIView):
             response['data'] = error_dict
             return JSONResponse(response, status=status.HTTP_400_BAD_REQUEST)
 
-class ReportPostView(APIView):
+class DeleteUserView(APIView):
     """
     Report a post and related data
     """
@@ -597,9 +597,10 @@ class ReportPostView(APIView):
                 user.delete()
 
                 response['code'] = DELETE_USER_SUCCESS_CODE
-                response['data'] = None
                 response['message']= DELETE_USER_SUCCESS_MESSAGE
-                return JSONResponse(response, status=status.HTTP_201_CREATED)
+                response['data'] = None
+
+                return JSONResponse(response, status=status.HTTP_200_OK)
 
             except Exception as e:
 

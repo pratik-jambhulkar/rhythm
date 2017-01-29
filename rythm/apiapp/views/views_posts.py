@@ -628,16 +628,16 @@ class GetPostFeedView(APIView):
             # Sort the list according to the created at in ascending manner
             sorted_list = sorted(posts_list, key=lambda k: k['post_details']['created_at'], reverse=True)
 
-            response['code'] = POST_GET_POST_DETAILS_SUCCESS_CODE
-            response['message'] = POST_GET_POST_DETAILS_SUCCESS_MESSAGE
+            response['code'] = POST_GET_POST_FEED_SUCCESS_CODE
+            response['message'] = POST_GET_POST_FEED_SUCCESS_MESSAGE
             response['data'] = sorted_list
             return Response(response, status= status.HTTP_200_OK)
 
         except Exception as e:
 
             print (e)
-            response['code'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_CODE
-            response['message'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_MESSAGE
+            response['code'] = POST_GET_POST_FEED_DATA_EXCEPTION_CODE
+            response['message'] = POST_GET_POST_FEED_DATA_EXCEPTION_MESSAGE
             response['data'] = None
             return Response(response, status= status.HTTP_400_BAD_REQUEST)
 
@@ -739,15 +739,15 @@ class GetReportsView(APIView):
             # Sort the list according to the created at in ascending manner
             sorted_list = sorted(reports_lists, key=lambda k: k['report_details']['created_at'])
 
-            response['code'] = POST_GET_POST_DETAILS_SUCCESS_CODE
-            response['message'] = POST_GET_POST_DETAILS_SUCCESS_MESSAGE
+            response['code'] = POST_GET_REPORTS_SUCCESS_CODE
+            response['message'] = POST_GET_REPORTS_SUCCESS_MESSAGE
             response['data'] = sorted_list
             return Response(response, status= status.HTTP_200_OK)
 
         except Exception as e:
 
             print (e)
-            response['code'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_CODE
-            response['message'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_MESSAGE
+            response['code'] = POST_GET_REPORTS_DATA_EXCEPTION_CODE
+            response['message'] = POST_GET_REPORTS_DATA_EXCEPTION_MESSAGE
             response['data'] = None
             return Response(response, status= status.HTTP_400_BAD_REQUEST)
