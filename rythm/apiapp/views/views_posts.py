@@ -557,30 +557,48 @@ class GetPostDetailsView(APIView):
     authentication_classes = (authentication.TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     parser_classes = (JSONParser,)
-    lookup_url_kwarg = "post_id"
+    serializer_class = LikeSerializer
 
-    def get(self, request, post_id):
+    def post(self, request):
         response = {}
 
-        try:
+        data = JSONParser().parse(request)
+        post_serializer = LikeSerializer(data=data)
 
-            # Get the post object for the particular post id
-            post_object = RhythmPosts.objects.get(post_id=post_id)
-            
-            post_details = get_post_details(post_object)
+        if post_serializer.is_valid():
 
-            response['code'] = POST_GET_POST_DETAILS_SUCCESS_CODE
-            response['message'] = POST_GET_POST_DETAILS_SUCCESS_MESSAGE
-            response['data'] = post_details
-            return Response(response, status= status.HTTP_200_OK)
+            user_id = post_serializer.validated_data['user_id']
+            post_id = post_serializer.validated_data['post_id']
 
-        except Exception as e:
+            try:
 
-            print (e)
-            response['code'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_CODE
-            response['message'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_MESSAGE
-            response['data'] = None
-            return Response(response, status= status.HTTP_400_BAD_REQUEST)
+                # Get the post object for the particular post id
+                post_object = RhythmPosts.objects.get(post_id=post_id)
+                
+                post_details = get_post_details(post_object)
+
+                post_details['has_user_liked'] = is_post_liked(user_id,post_object)
+
+                response['code'] = POST_GET_POST_DETAILS_SUCCESS_CODE
+                response['message'] = POST_GET_POST_DETAILS_SUCCESS_MESSAGE
+                response['data'] = post_details
+                return Response(response, status= status.HTTP_200_OK)
+
+            except Exception as e:
+
+                print (e)
+                response['code'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_CODE
+                response['message'] = POST_GET_POST_DETAILS_DATA_EXCEPTION_MESSAGE
+                response['data'] = None
+                return Response(response, status= status.HTTP_400_BAD_REQUEST)
+        else:
+            error_dict = {}
+            response['code'] = POST_DELETE_MISSING_FIELDS_CODE
+            response['message'] = POST_DELETE_MISSING_FIELDS_MESSAGE
+            for key, value in post_serializer.errors.items():
+                error_dict[key] = value[0]
+            response['data'] = error_dict
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 class GetPostFeedView(APIView):
     """
@@ -621,6 +639,9 @@ class GetPostFeedView(APIView):
                     for post in posts:
                         post_object = {}
                         post_details = get_post_details(post)
+
+                        post_details['has_user_liked'] = is_post_liked(user_id,post)
+                        
                         post_object['post_details'] = post_details
                         post_object['user_details'] = user_details
                         posts_list.append(post_object)

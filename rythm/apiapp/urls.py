@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^posts/delete-post/$', views.DeletePostView.as_view()),
     url(r'^posts/get-comments/(?P<post_id>[A-Za-z0-9-]+)/$', views.GetCommentsView.as_view()),
     url(r'^posts/toggle-comments/(?P<post_id>[A-Za-z0-9-]+)/$', views.ToggleCommentOptionView.as_view()),
-    url(r'^posts/get-post-details/(?P<post_id>[A-Za-z0-9-]+)/$', views.GetPostDetailsView.as_view()),
+    url(r'^posts/get-post-details/$', views.GetPostDetailsView.as_view()),
     url(r'^posts/get-post-feed/(?P<user_id>[A-Za-z0-9-]+)/$', views.GetPostFeedView.as_view()),
     url(r'^posts/report-post/$', views.ReportPostView.as_view()),
     url(r'^posts/get-reports/$', views.GetReportsView.as_view()),
