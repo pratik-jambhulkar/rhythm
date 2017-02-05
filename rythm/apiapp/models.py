@@ -115,6 +115,9 @@ class UpdateBasicInfo(Document):
 	farorite_album = fields.StringField(default=None,unique=False, blank=True, required=False)
 	date_of_birth = fields.StringField(default=None,blank=True, required=False)
 	gender = fields.StringField(default=None,blank=True, required=False)
+	username = fields.StringField(max_length=16, required=True)
+	password = fields.StringField(max_length=32, required=True)
+	email_id = fields.EmailField(required=True)
 
 class LikeDetails(EmbeddedDocument):
 	user_id = fields.StringField(unique=False)

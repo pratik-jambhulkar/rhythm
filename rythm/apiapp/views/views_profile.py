@@ -68,11 +68,20 @@ class UpdateUserProfileView(APIView):
 
 			try:
 
+				user=Users.objects(user_id=data['user_id'])
+
+				# Update the username and email in the django database
+				user_object = User.objects.get(username = user['username'])
+				user_object.username = data['username']
+				user_object.email = data['email_id']
+				user_object.set_password(data['password'])
+				user_object.save()
+
 				user=Users.objects(user_id=data['user_id']).update(user_bio=data['user_bio'],
 						profile_url=data['profile_url'], favorite_genre=data['favorite_genre'],
 						favorite_artist=data['favorite_artist'], favorite_instrument=data['favorite_instrument'],
 						farorite_album=data['farorite_album'], date_of_birth=data['date_of_birth'],
-						gender=data['gender'])
+						gender=data['gender'], username=data['username'], email_id=data['email_id'])
 				
 				# Get the updated data to send it back 
 				users = Users.objects.get(user_id=data['user_id'])
