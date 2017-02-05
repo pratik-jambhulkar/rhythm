@@ -521,6 +521,8 @@ class LoginWithGoogleView(APIView):
                     user = authenticate(username=username , password=new_password)
                     login(request, user)
 
+                    # Dummy text
+
                     token, created = Token.objects.get_or_create(user=user)
                     user_data = Users.objects.get(username=username)
                     user_data.token = token
