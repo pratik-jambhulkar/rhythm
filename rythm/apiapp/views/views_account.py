@@ -347,7 +347,7 @@ class LoginWithFacebookView(APIView):
             facebook_access_token = data['access_token']
 
             # Create the API url, from where we have to get the data
-            graph_url = "https://graph.facebook.com/" + facebook_user_id + "/?fields=first_name,last_name,email&access_token=" + facebook_access_token
+            graph_url = "https://graph.facebook.com/" + facebook_user_id + "/?fields=first_name,last_name,email,picture&access_token=" + facebook_access_token
             
             # Hit the facebook api to get the data
             graph_response = requests.get(graph_url)
@@ -361,6 +361,10 @@ class LoginWithFacebookView(APIView):
             registration_object['first_name'] = first_name = striped_string
             registration_object['last_name'] = last_name = response_in_json['last_name']
             registration_object['email_id'] = email_id = response_in_json['email']
+
+            profile_data = response_in_json['picture']
+            inner_data = profile_data['data']
+            registration_object['profile_url'] = profile_url = inner_data['url']
 
             try:
                 # Check whether the user is already in the database
@@ -386,8 +390,6 @@ class LoginWithFacebookView(APIView):
 
                 photo_url = "https://graph.facebook.com/" + facebook_user_id + "/picture?width=480&height=480&access_token=" + facebook_access_token
                 
-                registration_object['profile_url'] = profile_url
-
                 registration_object['user_id'] = userid = str(uuid.uuid4())
                 number = '{:03d}'.format(random.randrange(1, 999))
                 registration_object['username'] = username = (first_name + number)
@@ -518,10 +520,6 @@ class LoginWithGoogleView(APIView):
                     # authenticate and login the users and get the data to send it back to the user
                     user = authenticate(username=username , password=new_password)
                     login(request, user)
-
-                    # Get and set the token and user's data
-                    Users.objects.get(username=username).update(is_logged_in=True,
-                        deactivate_account=False)
 
                     token, created = Token.objects.get_or_create(user=user)
                     user_data = Users.objects.get(username=username)
