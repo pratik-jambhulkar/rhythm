@@ -47,6 +47,7 @@ class CreateANewPostView(APIView):
             try:
                 # Create a post id for the new post
                 post_id = str(uuid.uuid4())
+                current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
                 # Create a post object according to the data passed to the API
                 new_post_object = RhythmPosts(post_id=post_id,
@@ -56,7 +57,8 @@ class CreateANewPostView(APIView):
                     post_caption= post_caption, 
                     song_name= song_name,
                     album= album,
-                    ratings= ratings)
+                    ratings= ratings,
+                    created_at = current_time)
 
                 # Save the new post
                 new_post_object.save()
@@ -128,7 +130,8 @@ class LikePostView(APIView):
                     notification_details = NotificationDetails(_id=post_id, image_url=post_object.poster_url)
                     notification_object = Notifications(user_id = user_id, notification_id = notification_id,
                         notification_type = 3, 
-                        notification_details = notification_details)
+                        notification_details = notification_details,
+                        notification_received_at = current_time)
 
                     # Push the notification object created for this user
                     Users.objects(user_id=post_owner_id).update_one(
@@ -278,18 +281,21 @@ class CommentPostView(APIView):
                     # Create a notification object for the post
                     notification_id = str(uuid.uuid4())
                     comment_id = str(uuid.uuid4())
+                    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
                     comment_details = CommentDetails(comment_id=comment_id,
                         notification_id=notification_id,
                         comment=comment,
-                        user_id=user_id)
+                        user_id=user_id,
+                        created_at=current_time)
 
                     notification_details = NotificationDetails(_id=comment_id, 
                         image_url=post_object.poster_url,
                         title=comment)
                     notification_object = Notifications(user_id = user_id, notification_id = notification_id,
                         notification_type = 4, 
-                        notification_details = notification_details)
+                        notification_details = notification_details,
+                        notification_received_at = current_time)
 
                     # Push the notification object created for this user
                     Users.objects(user_id=post_owner_id).update_one(

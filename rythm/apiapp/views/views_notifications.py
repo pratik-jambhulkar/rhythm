@@ -39,6 +39,9 @@ class GetNotificationsView(generics.ListAPIView):
             # Iterate over the notifications
             for notification in notifications:
 
+                if (notification.notification_type == 3 or notification.notification_type == 4) and notification.user_id == user_id:
+                    continue
+
                 current_id = notification.user_id
                 notification_details_dict = {}
                 b_user = Users.objects(user_id=current_id).only('profile_url','username').first()
