@@ -84,7 +84,8 @@ class UpdateUserProfileView(APIView):
 				user=Users.objects(user_id=data['user_id']).update(user_bio=data['user_bio'],
 						profile_url=data['profile_url'], favorite_genre=data['favorite_genre'],
 						favorite_artist=data['favorite_artist'], date_of_birth=data['date_of_birth'],
-						gender=data['gender'], username=data['username'], email_id=data['email_id'])
+						gender=data['gender'], username=data['username'], email_id=data['email_id'],
+						first_name=data['first_name'], last_name=data['last_name'])
 				
 				# Get the updated data to send it back 
 				users = Users.objects.get(user_id=data['user_id'])

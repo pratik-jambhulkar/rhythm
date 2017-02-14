@@ -116,7 +116,9 @@ class UpdateBasicInfo(Document):
 	username = fields.StringField(max_length=16, required=True)
 	password = fields.StringField(max_length=32, required=True)
 	email_id = fields.EmailField(required=True)
-
+	first_name = fields.StringField(max_length=30, required=False, allow_null=True,unique=False)
+	last_name = fields.StringField(max_length=30, required=False, null=True,unique=False)
+	
 class LikeDetails(EmbeddedDocument):
 	user_id = fields.StringField(unique=False)
 	notification_id = fields.StringField(unique=False)
