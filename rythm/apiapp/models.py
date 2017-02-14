@@ -111,8 +111,6 @@ class UpdateBasicInfo(Document):
 	user_bio = fields.StringField(default=None,unique=False, blank=True, required=False)
 	favorite_genre = fields.StringField(default=None,unique=False, blank=True, required=False)
 	favorite_artist = fields.StringField(default=None,unique=False, blank=True, required=False)
-	favorite_instrument = fields.StringField(default=None,unique=False, blank=True, required=False)
-	farorite_album = fields.StringField(default=None,unique=False, blank=True, required=False)
 	date_of_birth = fields.StringField(default=None,blank=True, required=False)
 	gender = fields.StringField(default=None,blank=True, required=False)
 	username = fields.StringField(max_length=16, required=True)

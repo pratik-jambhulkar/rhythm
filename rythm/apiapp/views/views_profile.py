@@ -38,6 +38,10 @@ class GetUserProfileView(generics.ListAPIView):
 			
 			profile_data = get_user_details(user_object)
 
+			posts = RhythmPosts.objects(user_id=user_id)
+
+			profile_data['no_of_posts'] = len(posts)
+
 			response['code'] = PROFILE_GET_DETAILS_SUCCESS_CODE
 			response['message'] = PROFILE_GET_DETAILS_SUCCESS_MESSAGE
 			response['data'] = profile_data
@@ -68,7 +72,7 @@ class UpdateUserProfileView(APIView):
 
 			try:
 
-				user=Users.objects(user_id=data['user_id'])
+				user=Users.objects.get(user_id=data['user_id'])
 
 				# Update the username and email in the django database
 				user_object = User.objects.get(username = user['username'])
@@ -79,8 +83,7 @@ class UpdateUserProfileView(APIView):
 
 				user=Users.objects(user_id=data['user_id']).update(user_bio=data['user_bio'],
 						profile_url=data['profile_url'], favorite_genre=data['favorite_genre'],
-						favorite_artist=data['favorite_artist'], favorite_instrument=data['favorite_instrument'],
-						farorite_album=data['farorite_album'], date_of_birth=data['date_of_birth'],
+						favorite_artist=data['favorite_artist'], date_of_birth=data['date_of_birth'],
 						gender=data['gender'], username=data['username'], email_id=data['email_id'])
 				
 				# Get the updated data to send it back 
@@ -88,14 +91,19 @@ class UpdateUserProfileView(APIView):
 
 				profile_data = get_user_details(users)
 
+				posts = RhythmPosts.objects(user_id=data['user_id'])
+
+				profile_data['no_of_posts'] = len(posts)
+
 				response['code'] = PROFILE_UPDATE_SUCCESS_CODE
 				response['message'] = PROFILE_UPDATE_SUCCESS_MESSAGE
 				response['data'] = profile_data
 				return Response(response, status= status.HTTP_200_OK)
 			except Exception as e:
+				print (e)
 				response['code'] = PROFILE_UPDATE_INVALID_USERID_CODE
 				response['message'] = PROFILE_UPDATE_INVALID_USERID_MESSAGE
-				response['data'] = e.args
+				response['data'] = None
 				return Response(response, status= status.HTTP_400_BAD_REQUEST)
 		else:
 			error_dict = {}

@@ -43,8 +43,6 @@ def get_user_details(user_object):
 	profile_data['user_bio'] = user_object.user_bio
 	profile_data['favorite_genre'] = user_object.favorite_genre
 	profile_data['favorite_artist'] = user_object.favorite_artist
-	profile_data['favorite_instrument'] = user_object.favorite_instrument
-	profile_data['farorite_album'] = user_object.farorite_album
 	profile_data['date_of_birth'] = user_object.date_of_birth
 	profile_data['gender'] = user_object.gender
 	profile_data['follower_users_list'] = len(user_object.follower_users_list)

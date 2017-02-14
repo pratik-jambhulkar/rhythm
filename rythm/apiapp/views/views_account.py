@@ -181,7 +181,7 @@ class LogoutView(APIView):
                 response['code'] = LOGOUT_GCMDEVICE_ERROR_CODE
                 response['message'] = LOGOUT_GCMDEVICE_ERROR_MESSAGE
                 response['data'] = None
-                return JSONResponse(response, status=status.HTTP_400_BAD_REQUEST)
+                return JSONResponse(response, status=status.HTTP_200_OK)
         else:
             error_dict = {}
             response['code'] = LOGOUT_MISSING_FIELD_CODE
