@@ -431,32 +431,32 @@ class DeletePostView(APIView):
 
                 post_owner_id = post_object.user_id
 
-                if post_owner_id == user_id:
+                # if post_owner_id == user_id:
 
-                    # Delete the likes notifications from the Users database
-                    user_document = Users.objects.get(user_id=user_id)
+                # Delete the likes notifications from the Users database
+                user_document = Users.objects.get(user_id=user_id)
 
-                    if len(post_object.post_likes) > 0 :
-                        for like in post_object.post_likes:
-                            user_document.update(pull__notifications__notification_id=like.notification_id)
+                if len(post_object.post_likes) > 0 :
+                    for like in post_object.post_likes:
+                        user_document.update(pull__notifications__notification_id=like.notification_id)
 
-                    if len(post_object.post_comments) > 0:
-                        for comment in post_object.post_comments:
-                            user_document.update(pull__notifications__notification_id=like.notification_id)
+                if len(post_object.post_comments) > 0:
+                    for comment in post_object.post_comments:
+                        user_document.update(pull__notifications__notification_id=like.notification_id)
 
-                    post_object.delete()
+                post_object.delete()
 
-                    response['code'] = POST_DELETE_SUCCESS_CODE
-                    response['message'] = POST_DELETE_SUCCESS_MESSAGE
-                    response['data'] = None
-                    return Response(response, status= status.HTTP_200_OK)
+                response['code'] = POST_DELETE_SUCCESS_CODE
+                response['message'] = POST_DELETE_SUCCESS_MESSAGE
+                response['data'] = None
+                return Response(response, status= status.HTTP_200_OK)
 
-                else:
+                # else:
 
-                    response['code'] = POST_DELETE_NOT_AUTHORISED_CODE
-                    response['message'] = POST_DELETE_NOT_AUTHORISED_MESSAGE
-                    response['data'] = None
-                    return Response(response, status= status.HTTP_400_BAD_REQUEST)
+                #     response['code'] = POST_DELETE_NOT_AUTHORISED_CODE
+                #     response['message'] = POST_DELETE_NOT_AUTHORISED_MESSAGE
+                #     response['data'] = None
+                #     return Response(response, status= status.HTTP_400_BAD_REQUEST)
 
             except Exception as e:
 
