@@ -590,6 +590,21 @@ class DeleteUserView(APIView):
                             pull__followed_users_list__user_id=user_id,
                             pull__notifications__notification_id=follower.notification_id)
 
+                posts = RhythmPosts.objects.all()
+
+                for post in posts:
+                    if len(post_object.post_likes) > 0 :
+                        for like in post.post_likes:
+                            if like.user_id == user_id:
+                                RhythmPosts.objects.get(post_id=post.post_id).update(pull__post_likes__user_id=user_id)
+                                Users.objects.get(user_id=post.user_id).update(pull__notifications__notification_id=like.notification_id)
+
+                    if len(post_object.post_comments) > 0:
+                        for comment in post_object.post_comments:
+                            if comment.user_id == user_id:
+                                RhythmPosts.objects.get(post_id=post.post_id).update(pull__post_comments__user_id=user_id)
+                                Users.objects.get(user_id=post.user_id).update(pull__notifications__notification_id=like.notification_id)
+
                 ReportPosts.objects(user_id=user_id).delete()
                 # remove posts
                 posts = RhythmPosts.objects(user_id=user_id)
