@@ -593,6 +593,8 @@ class DeleteUserView(APIView):
                 # remove posts
                 posts = RhythmPosts.objects(user_id=user_id)
 
+                ReportPosts.objects(user_id=user_id).delete()
+                
                 for post in posts:
                     ReportPosts.objects(post_id=post.post_id).delete()
 
