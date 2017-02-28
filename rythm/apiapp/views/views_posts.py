@@ -444,6 +444,8 @@ class DeletePostView(APIView):
                     for comment in post_object.post_comments:
                         user_document.update(pull__notifications__notification_id=like.notification_id)
 
+                ReportPosts.objects(post_id=post_id).delete()
+
                 post_object.delete()
 
                 response['code'] = POST_DELETE_SUCCESS_CODE

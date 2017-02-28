@@ -591,8 +591,12 @@ class DeleteUserView(APIView):
                             pull__notifications__notification_id=follower.notification_id)
 
                 # remove posts
-                RhythmPosts.objects(user_id=user_id).delete()
+                posts = RhythmPosts.objects(user_id=user_id)
 
+                for post in posts:
+                    ReportPosts.objects(post_id=post.post_id).delete()
+
+                RhythmPosts.objects(user_id=user_id).delete()
                 # delete user
                 user.delete()
 
